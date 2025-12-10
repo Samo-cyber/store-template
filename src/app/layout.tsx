@@ -4,7 +4,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { CartProvider } from "@/context/CartContext";
 import CartDrawer from "@/components/CartDrawer";
-import FreeShippingBanner from "@/components/FreeShippingBanner";
+
 
 const cairo = Cairo({ subsets: ["arabic"] });
 
@@ -23,7 +23,7 @@ export default function RootLayout({
             <body className={cn(cairo.className, "min-h-screen bg-slate-950 font-sans antialiased selection:bg-primary selection:text-primary-foreground overflow-x-hidden relative")}>
                 <CartProvider>
                     <div className="relative z-10">
-                        <FreeShippingBanner />
+
                         {children}
                         <CartDrawer />
                     </div>

@@ -5,6 +5,8 @@ import ProductCard from "@/components/ProductCard";
 
 import { getFeaturedProducts, getBestSellers, getNewArrivals, getOffers, Product } from "@/lib/products";
 
+import FreeShippingBanner from "@/components/FreeShippingBanner";
+
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
@@ -17,6 +19,7 @@ export default async function Home() {
     return (
         <main className="min-h-screen flex flex-col">
             <Navbar />
+            <FreeShippingBanner />
             <Hero />
 
             {/* Best Sellers */}
