@@ -42,7 +42,7 @@ export default function FreeShippingBanner() {
             const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-            setTimeLeft(`${days}ي ${hours}س ${minutes}د ${seconds}ث`);
+            setTimeLeft(`${days} يوم ${hours} ساعة ${minutes} دقيقة ${seconds} ثانية`);
         }, 1000);
 
         return () => clearInterval(interval);
