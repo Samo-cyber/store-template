@@ -27,26 +27,36 @@ export default function AdminLoginPage() {
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
+        console.log("Login attempt started");
         setLoading(true);
         setError(null);
 
         if (!supabase) {
+            console.error("Supabase client is null");
             setError("Supabase غير مهيأ. يرجى التحقق من ملف .env");
             setLoading(false);
             return;
         }
 
         try {
-            const { error } = await supabase.auth.signInWithPassword({
+            console.log("Calling signInWithPassword...");
+            const { data, error } = await supabase.auth.signInWithPassword({
                 email,
                 password,
             });
 
-            if (error) throw error;
+            if (error) {
+                console.error("SignIn error:", error);
+                throw error;
+            }
 
-            router.push("/admin");
-            router.refresh(); // Force refresh to update middleware state
+            console.log("SignIn successful:", data);
+            console.log("Redirecting to /admin...");
+
+            // Force hard navigation to ensure cookies are sent to server
+            window.location.href = "/admin";
         } catch (err: any) {
+            console.error("Login exception:", err);
             setError(err.message || "حدث خطأ أثناء تسجيل الدخول");
         } finally {
             setLoading(false);
