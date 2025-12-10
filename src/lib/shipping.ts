@@ -71,9 +71,11 @@ export async function addShippingRate(governorate: string, price: number) {
 
     if (!supabase) return { success: true };
 
+    // Use upsert to handle duplicates gracefully
     const { error } = await supabase
         .from('shipping_rates')
-        .insert({ governorate, price });
+        .upsert({ governorate, price }, { onConflict: 'governorate' })
+        .select();
 
     if (error) {
         console.error('Error adding shipping rate:', error);

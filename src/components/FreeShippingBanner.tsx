@@ -49,7 +49,7 @@ export default function FreeShippingBanner() {
             <motion.div
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: "auto", opacity: 1 }}
-                className="bg-gradient-to-r from-primary to-purple-600 text-white relative z-50"
+                className="bg-gradient-to-r from-primary to-purple-600 text-white relative z-[100]"
             >
                 <div className="container mx-auto px-4 py-2 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-6 text-sm font-medium">
                     <div className="flex items-center gap-2 animate-pulse">
