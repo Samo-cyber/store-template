@@ -1,19 +1,20 @@
 -- ==========================================
--- 1. Extensions & Cleanup
+-- FINAL SETUP SCRIPT
+-- This script consolidates all changes:
+-- 1. Adds 'stock' column to products.
+-- 2. Removes 'customer_email' from orders.
+-- 3. Updates 'create_order' function.
+-- 4. Sets up RLS policies and Storage.
 -- ==========================================
+
+-- Enable UUID extension
 create extension if not exists "uuid-ossp";
 
--- Drop existing objects to ensure a clean slate (Optional, be careful in production)
--- drop table if exists public.order_items;
--- drop table if exists public.orders;
--- drop table if exists public.products;
--- drop function if exists create_order;
-
 -- ==========================================
--- 2. Tables
+-- 1. Table Updates (Safe Migrations)
 -- ==========================================
 
--- Products Table
+-- Products Table: Ensure 'stock' column exists
 create table if not exists public.products (
   id uuid default uuid_generate_v4() primary key,
   title text not null,
@@ -25,7 +26,18 @@ create table if not exists public.products (
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
--- Orders Table (Removed customer_email)
+-- Add 'stock' column if it was missing (for existing tables)
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'products' AND column_name = 'stock') THEN
+        ALTER TABLE public.products ADD COLUMN stock integer DEFAULT 0;
+    END IF;
+END $$;
+
+-- Update existing products to have stock (avoid "Out of Stock" for existing items)
+UPDATE public.products SET stock = 10 WHERE stock IS NULL OR stock = 0;
+
+-- Orders Table: Ensure 'customer_email' is removed
 create table if not exists public.orders (
   id uuid default uuid_generate_v4() primary key,
   customer_name text not null,
@@ -35,6 +47,9 @@ create table if not exists public.orders (
   status text default 'pending' check (status in ('pending', 'processing', 'shipped', 'delivered', 'cancelled')),
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
+
+-- Drop 'customer_email' if it still exists
+ALTER TABLE public.orders DROP COLUMN IF EXISTS customer_email;
 
 -- Order Items Table
 create table if not exists public.order_items (
@@ -46,7 +61,7 @@ create table if not exists public.order_items (
 );
 
 -- ==========================================
--- 3. Row Level Security (RLS) & Policies
+-- 2. Row Level Security (RLS) & Policies
 -- ==========================================
 
 -- Enable RLS
@@ -83,10 +98,13 @@ create policy "Admins can view order items"
   using ( auth.role() = 'authenticated' );
 
 -- ==========================================
--- 4. Functions (RPC)
+-- 3. Functions (RPC)
 -- ==========================================
 
--- Function to create order and order items transactionally (Removed email)
+-- Drop old function signature if it exists
+DROP FUNCTION IF EXISTS create_order(text, text, text, jsonb, numeric, jsonb);
+
+-- Function to create order and order items transactionally (No email)
 create or replace function create_order(
   p_customer_name text,
   p_customer_phone text,
@@ -134,10 +152,10 @@ end;
 $$ language plpgsql security definer;
 
 -- ==========================================
--- 5. Storage
+-- 4. Storage
 -- ==========================================
 
--- Create bucket if not exists (This usually needs to be done via API or UI, but SQL works in some environments)
+-- Create bucket if not exists
 insert into storage.buckets (id, name, public)
 values ('products', 'products', true)
 on conflict (id) do nothing;

@@ -21,7 +21,6 @@ export default function CheckoutPage() {
         fullName: "",
         phone: "",
         address: "",
-        city: "",
         governorate: "القاهرة"
     });
 
@@ -31,7 +30,7 @@ export default function CheckoutPage() {
     };
 
     const validateStep1 = () => {
-        const requiredFields = ['fullName', 'phone', 'address', 'city'];
+        const requiredFields = ['fullName', 'phone', 'address'];
         for (const field of requiredFields) {
             if (!formData[field as keyof typeof formData]) {
                 alert("يرجى ملء جميع البيانات المطلوبة");
@@ -60,7 +59,6 @@ export default function CheckoutPage() {
             customer_phone: formData.phone,
             address: {
                 street: formData.address,
-                city: formData.city,
                 governorate: formData.governorate,
             },
             items: items.map(item => ({
@@ -190,11 +188,7 @@ export default function CheckoutPage() {
                                                 <label className="text-sm font-medium text-slate-300">العنوان بالتفصيل</label>
                                                 <input name="address" value={formData.address} onChange={handleInputChange} required type="text" placeholder="اسم الشارع، رقم العمارة، الشقة" className="w-full h-12 rounded-xl border border-white/10 bg-slate-950/50 px-4 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all" />
                                             </div>
-                                            <div className="grid grid-cols-2 gap-6">
-                                                <div className="space-y-2">
-                                                    <label className="text-sm font-medium text-slate-300">المدينة</label>
-                                                    <input name="city" value={formData.city} onChange={handleInputChange} required type="text" className="w-full h-12 rounded-xl border border-white/10 bg-slate-950/50 px-4 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all" />
-                                                </div>
+                                            <div className="grid grid-cols-1 gap-6">
                                                 <div className="space-y-2">
                                                     <label className="text-sm font-medium text-slate-300">المحافظة</label>
                                                     <select name="governorate" value={formData.governorate} onChange={handleInputChange} className="w-full h-12 rounded-xl border border-white/10 bg-slate-950/50 px-4 text-white focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all">
@@ -262,7 +256,7 @@ export default function CheckoutPage() {
                                         </div>
                                         <div className="flex justify-between">
                                             <span className="text-slate-400">العنوان:</span>
-                                            <span className="text-white">{formData.address}, {formData.city}, {formData.governorate}</span>
+                                            <span className="text-white">{formData.address}, {formData.governorate}</span>
                                         </div>
                                         <div className="flex justify-between">
                                             <span className="text-slate-400">طريقة الدفع:</span>

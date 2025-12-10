@@ -5,7 +5,7 @@ export interface OrderData {
     customer_phone: string;
     address: {
         street: string;
-        city: string;
+        city?: string;
         governorate: string;
         zipCode?: string;
     };
