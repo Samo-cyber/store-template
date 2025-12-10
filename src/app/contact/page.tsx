@@ -4,7 +4,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Mail, MapPin, Phone, Send, ArrowRight, Clock, Globe } from "lucide-react";
+import { Mail, MapPin, Phone, Send, ArrowRight, Clock, Globe, Facebook, Instagram, Twitter, Linkedin, Youtube } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function ContactPage() {
@@ -46,87 +46,55 @@ export default function ContactPage() {
                                 subContent="متاح من 9 ص - 5 م"
                                 delay={0.3}
                             />
-                            <ContactCard
-                                icon={<MapPin className="h-6 w-6" />}
-                                title="الموقع"
-                                content="القاهرة، التجمع الخامس"
-                                subContent="108 شارع التسعين الشمالي"
-                                delay={0.4}
-                            />
-
-                            {/* Map Preview */}
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: 0.5, duration: 0.5 }}
-                                className="h-64 mt-8 rounded-3xl overflow-hidden border border-white/10 relative group cursor-pointer"
-                            >
-                                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1524661135-423995f22d0b?w=800&q=80')] bg-cover bg-center transition-transform duration-700 group-hover:scale-110 grayscale group-hover:grayscale-0" />
-                                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 to-transparent" />
-                                <div className="absolute bottom-6 right-6 flex items-center gap-2 text-white">
-                                    <div className="h-10 w-10 rounded-full bg-primary/90 backdrop-blur-md flex items-center justify-center shadow-lg group-hover:bg-primary transition-colors">
-                                        <Globe className="h-5 w-5" />
-                                    </div>
-                                    <span className="font-medium">عرض على الخريطة</span>
-                                </div>
-                            </motion.div>
                         </div>
 
-                        {/* Contact Form (Right Side) */}
+                        {/* Social Media (Right Side) */}
                         <motion.div
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.4, duration: 0.8 }}
                             className="lg:col-span-7"
                         >
-                            <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-8 md:p-10 rounded-3xl shadow-2xl relative overflow-hidden">
+                            <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-8 md:p-10 rounded-3xl shadow-2xl relative overflow-hidden h-full flex flex-col justify-center">
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-[50px] -mr-16 -mt-16 pointer-events-none" />
 
                                 <h2 className="text-2xl font-bold text-white mb-8 flex items-center gap-3">
-                                    <Send className="h-6 w-6 text-primary" />
-                                    أرسل رسالة
+                                    <Globe className="h-6 w-6 text-primary" />
+                                    تواصل معنا عبر السوشيال ميديا
                                 </h2>
 
-                                <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
-                                    <div className="grid md:grid-cols-2 gap-6">
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-medium text-slate-300">الاسم</label>
-                                            <Input
-                                                placeholder="اسمك بالكامل"
-                                                className="bg-slate-950/50 border-white/10 text-white placeholder:text-slate-600 focus-visible:ring-primary/50 h-12 rounded-xl"
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-medium text-slate-300">البريد الإلكتروني</label>
-                                            <Input
-                                                type="email"
-                                                placeholder="example@domain.com"
-                                                className="bg-slate-950/50 border-white/10 text-white placeholder:text-slate-600 focus-visible:ring-primary/50 h-12 rounded-xl"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-medium text-slate-300">الموضوع</label>
-                                        <Input
-                                            placeholder="كيف يمكننا مساعدتك؟"
-                                            className="bg-slate-950/50 border-white/10 text-white placeholder:text-slate-600 focus-visible:ring-primary/50 h-12 rounded-xl"
-                                        />
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-medium text-slate-300">الرسالة</label>
-                                        <textarea
-                                            className="flex min-h-[150px] w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm ring-offset-background placeholder:text-slate-600 text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
-                                            placeholder="اكتب رسالتك هنا..."
-                                        />
-                                    </div>
-
-                                    <Button size="lg" className="w-full h-14 text-lg rounded-xl bg-gradient-to-r from-primary to-blue-600 hover:from-primary/90 hover:to-blue-600/90 shadow-lg shadow-primary/20 transition-all duration-300 group">
-                                        إرسال الرسالة
-                                        <ArrowRight className="mr-2 h-5 w-5 group-hover:-translate-x-1 transition-transform" />
-                                    </Button>
-                                </form>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <SocialLink
+                                        href="#"
+                                        icon={<Facebook className="h-6 w-6" />}
+                                        label="Facebook"
+                                        color="bg-[#1877F2]"
+                                    />
+                                    <SocialLink
+                                        href="#"
+                                        icon={<Instagram className="h-6 w-6" />}
+                                        label="Instagram"
+                                        color="bg-[#E4405F]"
+                                    />
+                                    <SocialLink
+                                        href="#"
+                                        icon={<Twitter className="h-6 w-6" />}
+                                        label="Twitter"
+                                        color="bg-[#1DA1F2]"
+                                    />
+                                    <SocialLink
+                                        href="#"
+                                        icon={<Linkedin className="h-6 w-6" />}
+                                        label="LinkedIn"
+                                        color="bg-[#0A66C2]"
+                                    />
+                                    <SocialLink
+                                        href="#"
+                                        icon={<Youtube className="h-6 w-6" />}
+                                        label="YouTube"
+                                        color="bg-[#FF0000]"
+                                    />
+                                </div>
                             </div>
                         </motion.div>
                     </div>
@@ -154,5 +122,22 @@ function ContactCard({ icon, title, content, subContent, delay }: { icon: React.
                 <p className="text-sm text-slate-500">{subContent}</p>
             </div>
         </motion.div>
+    );
+}
+
+function SocialLink({ href, icon, label, color }: { href: string, icon: React.ReactNode, label: string, color: string }) {
+    return (
+        <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300 group"
+        >
+            <div className={`h-10 w-10 rounded-full flex items-center justify-center text-white shadow-lg transition-transform group-hover:scale-110 ${color}`}>
+                {icon}
+            </div>
+            <span className="font-medium text-white group-hover:text-primary transition-colors">{label}</span>
+            <ArrowRight className="h-4 w-4 text-slate-500 mr-auto group-hover:text-white group-hover:-translate-x-1 transition-all" />
+        </a>
     );
 }
