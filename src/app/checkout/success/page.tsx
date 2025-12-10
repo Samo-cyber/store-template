@@ -6,8 +6,12 @@ import { Button } from "@/components/ui/Button";
 import { CheckCircle2, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useSearchParams } from "next/navigation";
 
 export default function CheckoutSuccessPage() {
+    const searchParams = useSearchParams();
+    const orderId = searchParams.get('orderId');
+
     return (
         <main className="min-h-screen flex flex-col bg-background">
             <Navbar />
@@ -31,7 +35,9 @@ export default function CheckoutSuccessPage() {
 
                     <div className="p-4 bg-muted/30 rounded-lg border text-sm">
                         <p className="font-medium mb-1">رقم الطلب</p>
-                        <p className="text-xl font-mono tracking-widest">#ORD-{Math.floor(Math.random() * 100000)}</p>
+                        <p className="text-xl font-mono tracking-widest">
+                            {orderId ? `#${orderId.slice(0, 8)}` : `#ORD-${Math.floor(Math.random() * 100000)}`}
+                        </p>
                     </div>
 
                     <div className="pt-4">
