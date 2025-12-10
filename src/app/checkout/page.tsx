@@ -131,7 +131,7 @@ export default function CheckoutPage() {
                         {[1, 2, 3].map((step) => (
                             <div key={step} className="flex items-center">
                                 <div className={`h-10 w-10 rounded-full flex items-center justify-center font-bold transition-all ${step === currentStep ? 'bg-primary text-white scale-110 shadow-lg shadow-primary/25' :
-                                        step < currentStep ? 'bg-green-500 text-white' : 'bg-white/10 text-slate-400'
+                                    step < currentStep ? 'bg-green-500 text-white' : 'bg-white/10 text-slate-400'
                                     }`}>
                                     {step < currentStep ? <CheckCircle2 className="h-6 w-6" /> : step}
                                 </div>
@@ -289,6 +289,21 @@ export default function CheckoutPage() {
                                                 <span className="text-white">{(item.price * item.quantity).toFixed(2)} ج.م</span>
                                             </div>
                                         ))}
+                                    </div>
+
+                                    <div className="border-t border-white/10 pt-4 space-y-2">
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-slate-400">المجموع الفرعي</span>
+                                            <span className="text-white">{cartTotal.toFixed(2)} ج.م</span>
+                                        </div>
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-slate-400">الشحن</span>
+                                            <span className="text-green-400 font-medium">مجاني</span>
+                                        </div>
+                                        <div className="flex justify-between text-lg font-bold pt-2 border-t border-white/10 mt-2">
+                                            <span className="text-white">الإجمالي</span>
+                                            <span className="text-primary">{cartTotal.toFixed(2)} ج.م</span>
+                                        </div>
                                     </div>
                                 </motion.div>
                             )}
