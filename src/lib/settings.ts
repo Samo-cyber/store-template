@@ -6,12 +6,15 @@ export interface FreeShippingSettings {
     endDate: string | null; // ISO string
 }
 
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createBrowserClient } from "@supabase/auth-helpers-nextjs";
 
 // Helper to get a working client
 const getClient = () => {
     if (typeof window !== 'undefined') {
-        return createClientComponentClient();
+        return createBrowserClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
     }
 
     if (globalSupabase) return globalSupabase;
