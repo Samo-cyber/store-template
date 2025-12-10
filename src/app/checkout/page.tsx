@@ -18,9 +18,7 @@ export default function CheckoutPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const [formData, setFormData] = useState({
-        firstName: "",
-        lastName: "",
-        email: "",
+        fullName: "",
         phone: "",
         address: "",
         city: "",
@@ -33,7 +31,7 @@ export default function CheckoutPage() {
     };
 
     const validateStep1 = () => {
-        const requiredFields = ['firstName', 'lastName', 'email', 'phone', 'address', 'city'];
+        const requiredFields = ['fullName', 'phone', 'address', 'city'];
         for (const field of requiredFields) {
             if (!formData[field as keyof typeof formData]) {
                 alert("يرجى ملء جميع البيانات المطلوبة");
@@ -58,8 +56,8 @@ export default function CheckoutPage() {
         setIsSubmitting(true);
 
         const orderData = {
-            customer_name: `${formData.firstName} ${formData.lastName}`,
-            customer_email: formData.email,
+            customer_name: formData.fullName,
+            customer_email: "", // Email removed as per request
             customer_phone: formData.phone,
             address: {
                 street: formData.address,
@@ -170,20 +168,12 @@ export default function CheckoutPage() {
                                             <User className="h-6 w-6 text-primary" />
                                             البيانات الشخصية
                                         </h2>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="grid grid-cols-1 gap-6">
                                             <div className="space-y-2">
-                                                <label className="text-sm font-medium text-slate-300">الاسم الأول</label>
-                                                <input name="firstName" value={formData.firstName} onChange={handleInputChange} required type="text" className="w-full h-12 rounded-xl border border-white/10 bg-slate-950/50 px-4 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all" />
+                                                <label className="text-sm font-medium text-slate-300">الاسم بالكامل</label>
+                                                <input name="fullName" value={formData.fullName} onChange={handleInputChange} required type="text" className="w-full h-12 rounded-xl border border-white/10 bg-slate-950/50 px-4 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all" />
                                             </div>
                                             <div className="space-y-2">
-                                                <label className="text-sm font-medium text-slate-300">اسم العائلة</label>
-                                                <input name="lastName" value={formData.lastName} onChange={handleInputChange} required type="text" className="w-full h-12 rounded-xl border border-white/10 bg-slate-950/50 px-4 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all" />
-                                            </div>
-                                            <div className="space-y-2 md:col-span-2">
-                                                <label className="text-sm font-medium text-slate-300">البريد الإلكتروني</label>
-                                                <input name="email" value={formData.email} onChange={handleInputChange} required type="email" className="w-full h-12 rounded-xl border border-white/10 bg-slate-950/50 px-4 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all" />
-                                            </div>
-                                            <div className="space-y-2 md:col-span-2">
                                                 <label className="text-sm font-medium text-slate-300">رقم الهاتف</label>
                                                 <input name="phone" value={formData.phone} onChange={handleInputChange} required type="tel" className="w-full h-12 rounded-xl border border-white/10 bg-slate-950/50 px-4 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all" />
                                             </div>
@@ -265,7 +255,7 @@ export default function CheckoutPage() {
                                     <div className="space-y-4 text-sm border-b border-white/10 pb-6">
                                         <div className="flex justify-between">
                                             <span className="text-slate-400">الاسم:</span>
-                                            <span className="text-white">{formData.firstName} {formData.lastName}</span>
+                                            <span className="text-white">{formData.fullName}</span>
                                         </div>
                                         <div className="flex justify-between">
                                             <span className="text-slate-400">رقم الهاتف:</span>
