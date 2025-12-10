@@ -5,6 +5,8 @@ import ProductCard from "@/components/ProductCard";
 
 import { getFeaturedProducts, Product } from "@/lib/products";
 
+export const dynamic = 'force-dynamic';
+
 export default async function Home() {
     const featuredProducts = await getFeaturedProducts();
 

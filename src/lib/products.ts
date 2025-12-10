@@ -1,4 +1,5 @@
-import { supabase } from './supabase';
+import { createClient } from '@supabase/supabase-js';
+import { supabase as globalSupabase } from './supabase';
 
 export interface Product {
     id: string;
@@ -49,7 +50,24 @@ const MOCK_PRODUCTS: Product[] = [
     }
 ];
 
+// Helper to get a working client
+const getClient = () => {
+    if (globalSupabase) return globalSupabase;
+
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (url && key && url !== 'your_supabase_project_url_here') {
+        return createClient(url, key, {
+            auth: { persistSession: false } // No auth needed for public fetch
+        });
+    }
+    return null;
+};
+
 export async function getProducts() {
+    const supabase = getClient();
+
     if (!supabase) {
         console.warn('Supabase not configured, returning mock data');
         return MOCK_PRODUCTS;
@@ -69,6 +87,8 @@ export async function getProducts() {
 }
 
 export async function getProductById(id: string) {
+    const supabase = getClient();
+
     if (!supabase) {
         return MOCK_PRODUCTS.find(p => p.id === id) || null;
     }
@@ -88,6 +108,8 @@ export async function getProductById(id: string) {
 }
 
 export async function getFeaturedProducts(limit = 4) {
+    const supabase = getClient();
+
     if (!supabase) {
         return MOCK_PRODUCTS.slice(0, limit);
     }
@@ -107,6 +129,8 @@ export async function getFeaturedProducts(limit = 4) {
 }
 
 export async function getProductsByCategory(category: string) {
+    const supabase = getClient();
+
     if (!supabase) {
         return MOCK_PRODUCTS.filter(p => p.category === category);
     }
