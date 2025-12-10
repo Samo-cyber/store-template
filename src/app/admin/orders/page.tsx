@@ -147,8 +147,8 @@ export default function AdminOrdersPage() {
                 <p className="text-muted-foreground">إدارة ومتابعة طلبات العملاء</p>
             </div>
 
-            <div className="border rounded-xl overflow-hidden bg-card">
-                <table className="w-full text-sm text-right">
+            <div className="border rounded-xl overflow-hidden bg-card overflow-x-auto">
+                <table className="w-full text-sm text-right min-w-[800px]">
                     <thead className="bg-muted/50">
                         <tr>
                             <th className="p-4 font-medium text-muted-foreground">رقم الطلب</th>
