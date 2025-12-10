@@ -1,21 +1,23 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/Button";
 import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { CheckCircle2, CreditCard, Truck, ShoppingBag, ArrowRight, ShieldCheck, ArrowLeft, User, MapPin } from "lucide-react";
+import { CheckCircle2, CreditCard, ShoppingBag, ArrowRight, ArrowLeft, User, MapPin } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { submitOrder } from "@/lib/orders";
+import { getShippingRateForGovernorate } from "@/lib/shipping";
 
 export default function CheckoutPage() {
     const { items, cartTotal, clearCart } = useCart();
     const router = useRouter();
     const [currentStep, setCurrentStep] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [shippingCost, setShippingCost] = useState(0);
 
     const [formData, setFormData] = useState({
         fullName: "",
@@ -24,9 +26,23 @@ export default function CheckoutPage() {
         governorate: "القاهرة"
     });
 
+    // Fetch initial shipping rate
+    useEffect(() => {
+        updateShippingCost(formData.governorate);
+    }, []);
+
+    const updateShippingCost = async (governorate: string) => {
+        const cost = await getShippingRateForGovernorate(governorate);
+        setShippingCost(cost);
+    };
+
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+
+        if (name === "governorate") {
+            updateShippingCost(value);
+        }
     };
 
     const validateStep1 = () => {
@@ -66,7 +82,8 @@ export default function CheckoutPage() {
                 quantity: item.quantity,
                 price: item.price
             })),
-            total_amount: cartTotal
+            total_amount: cartTotal + shippingCost,
+            shipping_cost: shippingCost
         };
 
         const result = await submitOrder(orderData);
@@ -291,12 +308,14 @@ export default function CheckoutPage() {
                                             <span className="text-white">{cartTotal.toFixed(2)} ج.م</span>
                                         </div>
                                         <div className="flex justify-between text-sm">
-                                            <span className="text-slate-400">الشحن</span>
-                                            <span className="text-green-400 font-medium">مجاني</span>
+                                            <span className="text-slate-400">الشحن ({formData.governorate})</span>
+                                            <span className="text-green-400 font-medium">
+                                                {shippingCost === 0 ? "مجاني" : `${shippingCost.toFixed(2)} ج.م`}
+                                            </span>
                                         </div>
                                         <div className="flex justify-between text-lg font-bold pt-2 border-t border-white/10 mt-2">
                                             <span className="text-white">الإجمالي</span>
-                                            <span className="text-primary">{cartTotal.toFixed(2)} ج.م</span>
+                                            <span className="text-primary">{(cartTotal + shippingCost).toFixed(2)} ج.م</span>
                                         </div>
                                     </div>
                                 </motion.div>

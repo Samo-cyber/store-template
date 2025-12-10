@@ -15,6 +15,7 @@ export interface OrderData {
         price: number;
     }[];
     total_amount: number;
+    shipping_cost: number;
 }
 
 export async function submitOrder(orderData: OrderData) {
@@ -31,7 +32,8 @@ export async function submitOrder(orderData: OrderData) {
             p_customer_phone: orderData.customer_phone,
             p_address: orderData.address,
             p_total_amount: orderData.total_amount,
-            p_items: orderData.items
+            p_items: orderData.items,
+            p_shipping_cost: orderData.shipping_cost
         });
 
         if (error) throw error;
