@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { COOKIE_NAME } from './lib/auth-config'
 
 export async function middleware(req: NextRequest) {
     const res = NextResponse.next()
@@ -12,49 +13,29 @@ export async function middleware(req: NextRequest) {
         return res
     }
 
-    // Calculate cookie name to match createBrowserClient
-    // Default is sb-<ref>-auth-token
-    let cookieName = 'sb-auth-token'
-    try {
-        const url = new URL(supabaseUrl)
-        const ref = url.hostname.split('.')[0]
-        cookieName = `sb-${ref}-auth-token`
-    } catch (e) {
-        // Fallback or handle invalid URL
-    }
-
     const supabase = createClient(supabaseUrl, supabaseKey, {
         auth: {
             persistSession: true,
             detectSessionInUrl: false,
             storage: {
                 getItem: (key) => {
-                    // supabase-js uses 'sb-<ref>-auth-token' as key by default? 
-                    // No, it uses the key passed to it. 
-                    // But createBrowserClient overrides this.
-                    // We need to look for the cookie that createBrowserClient set.
-                    // createBrowserClient sets a cookie named `sb-<ref>-auth-token`.
-                    // We should try to read that specific cookie.
-
-                    // Actually, let's try to read the cookie with the name we calculated.
-                    const cookie = req.cookies.get(cookieName)
+                    const cookie = req.cookies.get(COOKIE_NAME)
                     return cookie?.value ?? null
                 },
                 setItem: (key, value) => {
-                    // We need to set the cookie on the response
                     res.cookies.set({
-                        name: cookieName,
+                        name: COOKIE_NAME,
                         value,
                         domain: req.nextUrl.hostname === 'localhost' ? undefined : '.' + req.nextUrl.hostname,
                         path: '/',
                         sameSite: 'lax',
                         secure: process.env.NODE_ENV === 'production',
-                        maxAge: 60 * 60 * 24 * 365 * 1000 // 1000 years? No, just a long time.
+                        maxAge: 60 * 60 * 24 * 365 * 1000
                     })
                 },
                 removeItem: (key) => {
                     res.cookies.set({
-                        name: cookieName,
+                        name: COOKIE_NAME,
                         value: '',
                         maxAge: 0,
                         path: '/',

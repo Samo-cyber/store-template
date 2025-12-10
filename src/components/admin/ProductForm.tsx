@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/Input";
 import { Loader2, Save, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Product } from "@/lib/products";
+import { COOKIE_NAME } from "@/lib/auth-config";
 
 interface ProductFormProps {
     initialData?: Product;
@@ -23,7 +24,8 @@ export function ProductForm({ initialData, isEdit = false }: ProductFormProps) {
     const [supabase] = useState(() => process.env.NEXT_PUBLIC_SUPABASE_URL
         ? createBrowserClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            { cookieOptions: { name: COOKIE_NAME } }
         )
         : null);
 

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Plus, Pencil, Trash2, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { COOKIE_NAME } from "@/lib/auth-config";
 
 export default function AdminProductsPage() {
     const [products, setProducts] = useState<Product[]>([]);
@@ -17,7 +18,8 @@ export default function AdminProductsPage() {
     const [supabase] = useState(() => process.env.NEXT_PUBLIC_SUPABASE_URL
         ? createBrowserClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            { cookieOptions: { name: COOKIE_NAME } }
         )
         : null);
 

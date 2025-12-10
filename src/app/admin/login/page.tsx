@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Lock, Mail, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
+import { COOKIE_NAME } from "@/lib/auth-config";
 
 export default function AdminLoginPage() {
     const [email, setEmail] = useState("");
@@ -19,7 +20,8 @@ export default function AdminLoginPage() {
     const [supabase] = useState(() => process.env.NEXT_PUBLIC_SUPABASE_URL
         ? createBrowserClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            { cookieOptions: { name: COOKIE_NAME } }
         )
         : null);
 
@@ -43,6 +45,7 @@ export default function AdminLoginPage() {
             if (error) throw error;
 
             router.push("/admin");
+            router.refresh(); // Force refresh to update middleware state
         } catch (err: any) {
             setError(err.message || "حدث خطأ أثناء تسجيل الدخول");
         } finally {

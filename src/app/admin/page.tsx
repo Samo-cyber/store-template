@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createBrowserClient } from "@supabase/auth-helpers-nextjs";
 import { Loader2, DollarSign, ShoppingBag, Package } from "lucide-react";
+import { COOKIE_NAME } from "@/lib/auth-config";
 
 export default function AdminDashboard() {
     const [stats, setStats] = useState({
@@ -16,7 +17,8 @@ export default function AdminDashboard() {
     const [supabase] = useState(() => process.env.NEXT_PUBLIC_SUPABASE_URL
         ? createBrowserClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            { cookieOptions: { name: COOKIE_NAME } }
         )
         : null);
 

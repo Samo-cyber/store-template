@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { createBrowserClient } from "@supabase/auth-helpers-nextjs";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { COOKIE_NAME } from "@/lib/auth-config";
 
 const navItems = [
     {
@@ -35,7 +36,8 @@ export function AdminSidebar() {
     const [supabase] = useState(() => process.env.NEXT_PUBLIC_SUPABASE_URL
         ? createBrowserClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            { cookieOptions: { name: COOKIE_NAME } }
         )
         : null);
 

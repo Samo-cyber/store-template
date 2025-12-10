@@ -6,6 +6,7 @@ import { createBrowserClient } from "@supabase/auth-helpers-nextjs";
 import { Product } from "@/lib/products";
 import { Loader2 } from "lucide-react";
 import { useParams } from "next/navigation";
+import { COOKIE_NAME } from "@/lib/auth-config";
 
 export default function EditProductPage() {
     const params = useParams();
@@ -16,7 +17,8 @@ export default function EditProductPage() {
     const [supabase] = useState(() => process.env.NEXT_PUBLIC_SUPABASE_URL
         ? createBrowserClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            { cookieOptions: { name: COOKIE_NAME } }
         )
         : null);
 
