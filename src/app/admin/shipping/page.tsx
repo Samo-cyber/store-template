@@ -5,7 +5,12 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { getShippingRates, updateShippingRate, addShippingRate, ShippingRate } from "@/lib/shipping";
 import { getFreeShippingSettings, updateSetting, FreeShippingSettings } from "@/lib/settings";
-import { Save, Truck, Loader2, Plus, Timer, ToggleLeft, ToggleRight } from "lucide-react";
+import { Save, Truck, Loader2, Plus, Timer, ToggleLeft, ToggleRight, Calendar as CalendarIcon } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format } from "date-fns";
+import { ar } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 
 export default function ShippingPage() {
     const [rates, setRates] = useState<ShippingRate[]>([]);
@@ -20,6 +25,7 @@ export default function ShippingPage() {
     // Free Shipping State
     const [freeShipping, setFreeShipping] = useState<FreeShippingSettings>({ isActive: false, endDate: null });
     const [savingSettings, setSavingSettings] = useState(false);
+    const [date, setDate] = useState<Date | undefined>(undefined);
 
     useEffect(() => {
         loadData();
@@ -32,6 +38,9 @@ export default function ShippingPage() {
         ]);
         setRates(ratesData);
         setFreeShipping(settingsData);
+        if (settingsData.endDate) {
+            setDate(new Date(settingsData.endDate));
+        }
         setLoading(false);
     };
 
@@ -70,12 +79,18 @@ export default function ShippingPage() {
         setSavingSettings(false);
     };
 
-    const handleDateChange = async (date: string) => {
-        const newState = { ...freeShipping, endDate: date };
-        setFreeShipping(newState);
-        setSavingSettings(true);
-        await updateSetting('free_shipping', newState);
-        setSavingSettings(false);
+    const handleDateSelect = async (newDate: Date | undefined) => {
+        setDate(newDate);
+        if (newDate) {
+            // Set time to end of day for better UX
+            newDate.setHours(23, 59, 59, 999);
+            const isoDate = newDate.toISOString();
+            const newState = { ...freeShipping, endDate: isoDate };
+            setFreeShipping(newState);
+            setSavingSettings(true);
+            await updateSetting('free_shipping', newState);
+            setSavingSettings(false);
+        }
     };
 
     if (loading) {
@@ -130,12 +145,29 @@ export default function ShippingPage() {
                     {freeShipping.isActive && (
                         <div className="flex-1 w-full md:w-auto">
                             <label className="text-sm font-medium text-muted-foreground mb-2 block">تاريخ انتهاء العرض</label>
-                            <Input
-                                type="datetime-local"
-                                value={freeShipping.endDate || ""}
-                                onChange={(e) => handleDateChange(e.target.value)}
-                                className="w-full md:w-64"
-                            />
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        variant={"outline"}
+                                        className={cn(
+                                            "w-[280px] justify-start text-right font-normal",
+                                            !date && "text-muted-foreground"
+                                        )}
+                                    >
+                                        <CalendarIcon className="ml-2 h-4 w-4" />
+                                        {date ? format(date, "PPP", { locale: ar }) : <span>اختر تاريخ</span>}
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0">
+                                    <Calendar
+                                        mode="single"
+                                        selected={date}
+                                        onSelect={handleDateSelect}
+                                        initialFocus
+                                        disabled={(date) => date < new Date()}
+                                    />
+                                </PopoverContent>
+                            </Popover>
                         </div>
                     )}
                 </div>

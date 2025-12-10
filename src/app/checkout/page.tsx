@@ -40,23 +40,36 @@ export default function CheckoutPage() {
             setGovernorates(rates);
 
             // Check if free shipping is active
-            const isFree = freeSettings.isActive && freeSettings.endDate && new Date(freeSettings.endDate) > new Date();
-            setIsFreeShipping(!!isFree);
+            let isFree = false;
+            if (freeSettings.isActive && freeSettings.endDate) {
+                const endDate = new Date(freeSettings.endDate);
+                const now = new Date();
+                if (endDate > now) {
+                    isFree = true;
+                }
+            }
+
+            setIsFreeShipping(isFree);
 
             // Set default governorate if available
             if (rates.length > 0) {
                 const defaultGov = rates[0].governorate;
                 setFormData(prev => ({ ...prev, governorate: defaultGov }));
-                if (!isFree) {
-                    updateShippingCost(defaultGov);
+
+                // IMPORTANT: Pass the calculated isFree value directly, don't rely on state yet
+                if (isFree) {
+                    setShippingCost(0);
+                } else {
+                    updateShippingCost(defaultGov, false); // Force not free initially
                 }
             }
         };
         loadData();
     }, []);
 
-    const updateShippingCost = async (governorate: string) => {
-        if (isFreeShipping) {
+    const updateShippingCost = async (governorate: string, forceNotFree: boolean = false) => {
+        // Use the state unless forced (during initial load)
+        if (!forceNotFree && isFreeShipping) {
             setShippingCost(0);
             return;
         }

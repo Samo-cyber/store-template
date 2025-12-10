@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Package, ShoppingCart, LogOut, Truck } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingCart, LogOut, Truck, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { createBrowserClient } from "@supabase/auth-helpers-nextjs";
@@ -36,6 +36,7 @@ const navItems = [
 export function AdminSidebar() {
     const pathname = usePathname();
     const router = useRouter();
+    const [isOpen, setIsOpen] = useState(false);
 
     // Safely initialize Supabase client
     const [supabase] = useState(() => process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -53,39 +54,63 @@ export function AdminSidebar() {
         router.push("/admin/login");
     };
 
+    const toggleSidebar = () => setIsOpen(!isOpen);
+
     return (
-        <div className="w-64 border-l bg-card h-screen flex flex-col sticky top-0">
-            <div className="p-6 border-b">
-                <h2 className="text-2xl font-bold tracking-tight">لوحة التحكم</h2>
-                <p className="text-sm text-muted-foreground">برستيج ستور</p>
-            </div>
-            <nav className="flex-1 p-4 space-y-2">
-                {navItems.map((item) => (
-                    <Link
-                        key={item.href}
-                        href={item.href}
-                        className={cn(
-                            "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
-                            pathname === item.href
-                                ? "bg-primary text-primary-foreground"
-                                : "hover:bg-muted text-muted-foreground hover:text-foreground"
-                        )}
-                    >
-                        <item.icon className="h-5 w-5" />
-                        {item.title}
-                    </Link>
-                ))}
-            </nav>
-            <div className="p-4 border-t">
-                <Button
-                    variant="ghost"
-                    className="w-full justify-start gap-3 text-red-500 hover:text-red-600 hover:bg-red-500/10"
-                    onClick={handleLogout}
-                >
-                    <LogOut className="h-5 w-5" />
-                    تسجيل الخروج
+        <>
+            {/* Mobile Toggle Button */}
+            <div className="md:hidden fixed top-4 right-4 z-50">
+                <Button variant="outline" size="icon" onClick={toggleSidebar} className="bg-background">
+                    {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
                 </Button>
             </div>
-        </div>
+
+            {/* Overlay for mobile */}
+            {isOpen && (
+                <div
+                    className="fixed inset-0 bg-black/50 z-40 md:hidden"
+                    onClick={() => setIsOpen(false)}
+                />
+            )}
+
+            {/* Sidebar Container */}
+            <div className={cn(
+                "fixed inset-y-0 right-0 z-40 w-64 bg-card border-l transform transition-transform duration-200 ease-in-out md:translate-x-0 md:static md:h-screen md:flex md:flex-col",
+                isOpen ? "translate-x-0" : "translate-x-full"
+            )}>
+                <div className="p-6 border-b">
+                    <h2 className="text-2xl font-bold tracking-tight">لوحة التحكم</h2>
+                    <p className="text-sm text-muted-foreground">برستيج ستور</p>
+                </div>
+                <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+                    {navItems.map((item) => (
+                        <Link
+                            key={item.href}
+                            href={item.href}
+                            onClick={() => setIsOpen(false)}
+                            className={cn(
+                                "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
+                                pathname === item.href
+                                    ? "bg-primary text-primary-foreground"
+                                    : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                            )}
+                        >
+                            <item.icon className="h-5 w-5" />
+                            {item.title}
+                        </Link>
+                    ))}
+                </nav>
+                <div className="p-4 border-t mt-auto">
+                    <Button
+                        variant="ghost"
+                        className="w-full justify-start gap-3 text-red-500 hover:text-red-600 hover:bg-red-500/10"
+                        onClick={handleLogout}
+                    >
+                        <LogOut className="h-5 w-5" />
+                        تسجيل الخروج
+                    </Button>
+                </div>
+            </div>
+        </>
     );
 }
