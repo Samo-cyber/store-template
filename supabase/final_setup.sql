@@ -1,10 +1,12 @@
 -- ==========================================
--- FINAL SETUP SCRIPT
+-- FINAL SETUP SCRIPT (v3)
 -- This script consolidates all changes:
 -- 1. Adds 'stock' column to products.
 -- 2. Removes 'customer_email' from orders.
--- 3. Updates 'create_order' function.
--- 4. Sets up RLS policies and Storage.
+-- 3. Adds 'shipping_rates' table.
+-- 4. Adds 'shipping_cost' to orders.
+-- 5. Updates 'create_order' function.
+-- 6. Sets up RLS policies and Storage.
 -- ==========================================
 
 -- Enable UUID extension
@@ -37,19 +39,28 @@ END $$;
 -- Update existing products to have stock (avoid "Out of Stock" for existing items)
 UPDATE public.products SET stock = 10 WHERE stock IS NULL OR stock = 0;
 
--- Orders Table: Ensure 'customer_email' is removed
+-- Orders Table: Ensure 'customer_email' is removed and 'shipping_cost' is added
 create table if not exists public.orders (
   id uuid default uuid_generate_v4() primary key,
   customer_name text not null,
   customer_phone text not null,
   address jsonb not null,
   total_amount numeric not null,
+  shipping_cost numeric default 0,
   status text default 'pending' check (status in ('pending', 'processing', 'shipped', 'delivered', 'cancelled')),
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
 -- Drop 'customer_email' if it still exists
 ALTER TABLE public.orders DROP COLUMN IF EXISTS customer_email;
+
+-- Add 'shipping_cost' if it doesn't exist
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'orders' AND column_name = 'shipping_cost') THEN
+        ALTER TABLE public.orders ADD COLUMN shipping_cost numeric DEFAULT 0;
+    END IF;
+END $$;
 
 -- Order Items Table
 create table if not exists public.order_items (
@@ -60,6 +71,23 @@ create table if not exists public.order_items (
   price_at_purchase numeric not null
 );
 
+-- Shipping Rates Table
+create table if not exists public.shipping_rates (
+  id uuid default uuid_generate_v4() primary key,
+  governorate text not null unique,
+  price numeric not null default 0,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- Insert default shipping rates if empty
+insert into public.shipping_rates (governorate, price)
+values 
+  ('القاهرة', 50),
+  ('الجيزة', 50),
+  ('الإسكندرية', 60),
+  ('أخرى', 70)
+on conflict (governorate) do nothing;
+
 -- ==========================================
 -- 2. Row Level Security (RLS) & Policies
 -- ==========================================
@@ -68,6 +96,7 @@ create table if not exists public.order_items (
 alter table public.products enable row level security;
 alter table public.orders enable row level security;
 alter table public.order_items enable row level security;
+alter table public.shipping_rates enable row level security;
 
 -- Products Policies
 drop policy if exists "Public products are viewable by everyone" on public.products;
@@ -97,20 +126,33 @@ create policy "Admins can view order items"
   on public.order_items for select
   using ( auth.role() = 'authenticated' );
 
+-- Shipping Rates Policies
+drop policy if exists "Public view shipping rates" on public.shipping_rates;
+create policy "Public view shipping rates"
+  on public.shipping_rates for select
+  using ( true );
+
+drop policy if exists "Admins can manage shipping rates" on public.shipping_rates;
+create policy "Admins can manage shipping rates"
+  on public.shipping_rates for all
+  using ( auth.role() = 'authenticated' );
+
 -- ==========================================
 -- 3. Functions (RPC)
 -- ==========================================
 
 -- Drop old function signature if it exists
 DROP FUNCTION IF EXISTS create_order(text, text, text, jsonb, numeric, jsonb);
+DROP FUNCTION IF EXISTS create_order(text, text, jsonb, numeric, jsonb);
 
--- Function to create order and order items transactionally (No email)
+-- Function to create order and order items transactionally (With shipping cost)
 create or replace function create_order(
   p_customer_name text,
   p_customer_phone text,
   p_address jsonb,
   p_total_amount numeric,
-  p_items jsonb
+  p_items jsonb,
+  p_shipping_cost numeric default 0
 ) returns uuid as $$
 declare
   v_order_id uuid;
@@ -118,8 +160,8 @@ declare
   v_product_stock integer;
 begin
   -- 1. Create Order
-  insert into public.orders (customer_name, customer_phone, address, total_amount)
-  values (p_customer_name, p_customer_phone, p_address, p_total_amount)
+  insert into public.orders (customer_name, customer_phone, address, total_amount, shipping_cost)
+  values (p_customer_name, p_customer_phone, p_address, p_total_amount, p_shipping_cost)
   returning id into v_order_id;
 
   -- 2. Process Items
