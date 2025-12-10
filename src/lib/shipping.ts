@@ -66,6 +66,23 @@ export async function updateShippingRate(id: string, price: number) {
     return { success: true };
 }
 
+export async function addShippingRate(governorate: string, price: number) {
+    const supabase = getClient();
+
+    if (!supabase) return { success: true };
+
+    const { error } = await supabase
+        .from('shipping_rates')
+        .insert({ governorate, price });
+
+    if (error) {
+        console.error('Error adding shipping rate:', error);
+        return { success: false, error: error.message };
+    }
+
+    return { success: true };
+}
+
 export async function getShippingRateForGovernorate(governorate: string) {
     const rates = await getShippingRates();
     const rate = rates.find(r => r.governorate === governorate);

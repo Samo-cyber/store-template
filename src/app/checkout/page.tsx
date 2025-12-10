@@ -10,7 +10,8 @@ import Link from "next/link";
 import { CheckCircle2, CreditCard, ShoppingBag, ArrowRight, ArrowLeft, User, MapPin } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { submitOrder } from "@/lib/orders";
-import { getShippingRateForGovernorate } from "@/lib/shipping";
+import { getShippingRateForGovernorate, getShippingRates, ShippingRate } from "@/lib/shipping";
+import { getFreeShippingSettings } from "@/lib/settings";
 
 export default function CheckoutPage() {
     const { items, cartTotal, clearCart } = useCart();
@@ -18,20 +19,47 @@ export default function CheckoutPage() {
     const [currentStep, setCurrentStep] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [shippingCost, setShippingCost] = useState(0);
+    const [governorates, setGovernorates] = useState<ShippingRate[]>([]);
+    const [isFreeShipping, setIsFreeShipping] = useState(false);
 
     const [formData, setFormData] = useState({
         fullName: "",
         phone: "",
         address: "",
-        governorate: "القاهرة"
+        governorate: ""
     });
 
-    // Fetch initial shipping rate
+    // Fetch initial data
     useEffect(() => {
-        updateShippingCost(formData.governorate);
+        const loadData = async () => {
+            const [rates, freeSettings] = await Promise.all([
+                getShippingRates(),
+                getFreeShippingSettings()
+            ]);
+
+            setGovernorates(rates);
+
+            // Check if free shipping is active
+            const isFree = freeSettings.isActive && freeSettings.endDate && new Date(freeSettings.endDate) > new Date();
+            setIsFreeShipping(!!isFree);
+
+            // Set default governorate if available
+            if (rates.length > 0) {
+                const defaultGov = rates[0].governorate;
+                setFormData(prev => ({ ...prev, governorate: defaultGov }));
+                if (!isFree) {
+                    updateShippingCost(defaultGov);
+                }
+            }
+        };
+        loadData();
     }, []);
 
     const updateShippingCost = async (governorate: string) => {
+        if (isFreeShipping) {
+            setShippingCost(0);
+            return;
+        }
         const cost = await getShippingRateForGovernorate(governorate);
         setShippingCost(cost);
     };
@@ -46,7 +74,7 @@ export default function CheckoutPage() {
     };
 
     const validateStep1 = () => {
-        const requiredFields = ['fullName', 'phone', 'address'];
+        const requiredFields = ['fullName', 'phone', 'address', 'governorate'];
         for (const field of requiredFields) {
             if (!formData[field as keyof typeof formData]) {
                 alert("يرجى ملء جميع البيانات المطلوبة");
@@ -209,10 +237,11 @@ export default function CheckoutPage() {
                                                 <div className="space-y-2">
                                                     <label className="text-sm font-medium text-slate-300">المحافظة</label>
                                                     <select name="governorate" value={formData.governorate} onChange={handleInputChange} className="w-full h-12 rounded-xl border border-white/10 bg-slate-950/50 px-4 text-white focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all">
-                                                        <option className="bg-slate-900">القاهرة</option>
-                                                        <option className="bg-slate-900">الجيزة</option>
-                                                        <option className="bg-slate-900">الإسكندرية</option>
-                                                        <option className="bg-slate-900">أخرى</option>
+                                                        {governorates.map((gov) => (
+                                                            <option key={gov.id} value={gov.governorate} className="bg-slate-900">
+                                                                {gov.governorate}
+                                                            </option>
+                                                        ))}
                                                     </select>
                                                 </div>
                                             </div>
