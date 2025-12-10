@@ -3,23 +3,10 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 
-import { useEffect, useState } from "react";
 import { getFeaturedProducts, Product } from "@/lib/products";
-import { Loader2 } from "lucide-react";
 
-export default function Home() {
-    const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        async function loadFeatured() {
-            setLoading(true);
-            const data = await getFeaturedProducts();
-            setFeaturedProducts(data);
-            setLoading(false);
-        }
-        loadFeatured();
-    }, []);
+export default async function Home() {
+    const featuredProducts = await getFeaturedProducts();
 
     return (
         <main className="min-h-screen flex flex-col">
@@ -32,17 +19,11 @@ export default function Home() {
                         عرض الكل &larr;
                     </a>
                 </div>
-                {loading ? (
-                    <div className="flex justify-center py-12">
-                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-6">
-                        {featuredProducts.map((product) => (
-                            <ProductCard key={product.id} {...product} />
-                        ))}
-                    </div>
-                )}
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-6">
+                    {featuredProducts.map((product) => (
+                        <ProductCard key={product.id} {...product} />
+                    ))}
+                </div>
             </section>
             <Footer />
         </main>
