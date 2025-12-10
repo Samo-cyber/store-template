@@ -147,3 +147,34 @@ export async function getProductsByCategory(category: string) {
 
     return data as Product[];
 }
+export async function getBestSellers(limit = 4) {
+    // For now, just return featured products as best sellers
+    return getFeaturedProducts(limit);
+}
+
+export async function getNewArrivals(limit = 4) {
+    const supabase = getClient();
+
+    if (!supabase) {
+        return MOCK_PRODUCTS.slice(0, limit);
+    }
+
+    const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .limit(limit)
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Error fetching new arrivals:', error);
+        return [];
+    }
+
+    return data as Product[];
+}
+
+export async function getOffers(limit = 4) {
+    // For now, return random products as offers
+    // In a real app, you might query for products with a discount field
+    return getFeaturedProducts(limit);
+}

@@ -16,13 +16,18 @@ export interface ProductCardProps {
     category: string;
     image_url: string;
     description?: string | null;
+    stock?: number;
 }
 
-export default function ProductCard({ id, title, price, category, image_url }: ProductCardProps) {
+export default function ProductCard({ id, title, price, category, image_url, stock = 0 }: ProductCardProps) {
     const { addToCart } = useCart();
+    const isOutOfStock = stock === 0;
+    const isLastPiece = stock === 1;
 
     const handleAddToCart = (e: React.MouseEvent) => {
         e.preventDefault(); // Prevent navigation to product page
+        if (isOutOfStock) return;
+
         addToCart({
             id,
             title,
@@ -40,12 +45,26 @@ export default function ProductCard({ id, title, price, category, image_url }: P
         >
             <Link href={`/product/${id}`} className="block">
                 <div className="aspect-square bg-muted/50 relative overflow-hidden flex items-center justify-center">
+                    {/* Badges */}
+                    <div className="absolute top-2 right-2 z-10 flex flex-col gap-1">
+                        {isOutOfStock && (
+                            <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">
+                                نفذ من المخزون
+                            </span>
+                        )}
+                        {isLastPiece && !isOutOfStock && (
+                            <span className="bg-amber-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm animate-pulse">
+                                آخر قطعة
+                            </span>
+                        )}
+                    </div>
+
                     {!imageError ? (
                         <Image
                             src={image_url}
                             alt={title}
                             fill
-                            className="object-cover transition-transform duration-300 group-hover:scale-105"
+                            className={`object-cover transition-transform duration-300 group-hover:scale-105 ${isOutOfStock ? 'grayscale opacity-50' : ''}`}
                             onError={() => setImageError(true)}
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         />
@@ -65,7 +84,8 @@ export default function ProductCard({ id, title, price, category, image_url }: P
                         <Button
                             size="icon"
                             variant="secondary"
-                            className="h-7 w-7 sm:h-8 sm:w-8 rounded-full opacity-100 sm:opacity-0 group-hover:opacity-100 transition-all active:scale-90"
+                            disabled={isOutOfStock}
+                            className={`h-7 w-7 sm:h-8 sm:w-8 rounded-full opacity-100 sm:opacity-0 group-hover:opacity-100 transition-all active:scale-90 ${isOutOfStock ? 'cursor-not-allowed opacity-50' : ''}`}
                             onClick={handleAddToCart}
                         >
                             <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4" />
