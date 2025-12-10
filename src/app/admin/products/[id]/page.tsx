@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ProductForm } from "@/components/admin/ProductForm";
-import { supabase } from "@/lib/supabase";
+import { createBrowserClient } from "@supabase/auth-helpers-nextjs";
 import { Product } from "@/lib/products";
 import { Loader2 } from "lucide-react";
 import { useParams } from "next/navigation";
@@ -12,17 +12,36 @@ export default function EditProductPage() {
     const [product, setProduct] = useState<Product | null>(null);
     const [loading, setLoading] = useState(true);
 
+    // Safely initialize Supabase client
+    const [supabase] = useState(() => process.env.NEXT_PUBLIC_SUPABASE_URL
+        ? createBrowserClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        )
+        : null);
+
     useEffect(() => {
         async function loadProduct() {
-            // Use getProductById which handles mock data if Supabase is missing
-            const { getProductById } = await import("@/lib/products");
-            const productData = await getProductById(params.id as string);
+            if (!supabase) {
+                // Use getProductById which handles mock data if Supabase is missing
+                const { getProductById } = await import("@/lib/products");
+                const productData = await getProductById(params.id as string);
+                if (productData) setProduct(productData);
+                setLoading(false);
+                return;
+            }
 
-            if (productData) setProduct(productData);
+            const { data } = await supabase
+                .from('products')
+                .select('*')
+                .eq('id', params.id)
+                .single();
+
+            if (data) setProduct(data as Product);
             setLoading(false);
         }
         loadProduct();
-    }, [params.id]);
+    }, [params.id, supabase]);
 
     if (loading) {
         return (

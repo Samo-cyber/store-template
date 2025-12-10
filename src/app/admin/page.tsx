@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { createBrowserClient } from "@supabase/auth-helpers-nextjs";
 import { Loader2, DollarSign, ShoppingBag, Package } from "lucide-react";
 
 export default function AdminDashboard() {
@@ -11,6 +11,14 @@ export default function AdminDashboard() {
         totalProducts: 0,
     });
     const [loading, setLoading] = useState(true);
+
+    // Safely initialize Supabase client
+    const [supabase] = useState(() => process.env.NEXT_PUBLIC_SUPABASE_URL
+        ? createBrowserClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        )
+        : null);
 
     useEffect(() => {
         async function loadStats() {

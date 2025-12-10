@@ -5,8 +5,9 @@ import { usePathname } from "next/navigation";
 import { LayoutDashboard, Package, ShoppingCart, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
-import { supabase } from "@/lib/supabase";
+import { createBrowserClient } from "@supabase/auth-helpers-nextjs";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 const navItems = [
     {
@@ -29,6 +30,14 @@ const navItems = [
 export function AdminSidebar() {
     const pathname = usePathname();
     const router = useRouter();
+
+    // Safely initialize Supabase client
+    const [supabase] = useState(() => process.env.NEXT_PUBLIC_SUPABASE_URL
+        ? createBrowserClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        )
+        : null);
 
     const handleLogout = async () => {
         if (supabase) {

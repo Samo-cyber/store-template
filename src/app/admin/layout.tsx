@@ -3,7 +3,7 @@
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { createBrowserClient } from "@supabase/auth-helpers-nextjs";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
@@ -15,6 +15,14 @@ export default function AdminLayout({
     const pathname = usePathname();
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(true);
+
+    // Safely initialize Supabase client
+    const [supabase] = useState(() => process.env.NEXT_PUBLIC_SUPABASE_URL
+        ? createBrowserClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        )
+        : null);
 
     const isLoginPage = pathname === "/admin/login";
 
@@ -41,7 +49,7 @@ export default function AdminLayout({
         };
 
         checkAuth();
-    }, [pathname, router, isLoginPage]);
+    }, [pathname, router, isLoginPage, supabase]);
 
     if (isLoading) {
         return (
