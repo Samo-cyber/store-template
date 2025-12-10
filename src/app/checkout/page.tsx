@@ -57,7 +57,6 @@ export default function CheckoutPage() {
 
         const orderData = {
             customer_name: formData.fullName,
-            customer_email: "", // Email removed as per request
             customer_phone: formData.phone,
             address: {
                 street: formData.address,

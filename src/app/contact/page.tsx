@@ -94,6 +94,12 @@ export default function ContactPage() {
                                         label="YouTube"
                                         color="bg-[#FF0000]"
                                     />
+                                    <SocialLink
+                                        href="#"
+                                        icon={<Send className="h-6 w-6" />}
+                                        label="Telegram"
+                                        color="bg-[#0088cc]"
+                                    />
                                 </div>
                             </div>
                         </motion.div>

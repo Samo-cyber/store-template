@@ -4,7 +4,6 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { CartProvider } from "@/context/CartContext";
 import CartDrawer from "@/components/CartDrawer";
-import GlobalBackground from "@/components/GlobalBackground";
 
 const cairo = Cairo({ subsets: ["arabic"] });
 
@@ -20,9 +19,8 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="ar" dir="rtl" className="scroll-smooth dark">
-            <body className={cn(cairo.className, "min-h-screen bg-transparent font-sans antialiased selection:bg-primary selection:text-primary-foreground overflow-x-hidden relative")}>
+            <body className={cn(cairo.className, "min-h-screen bg-slate-950 font-sans antialiased selection:bg-primary selection:text-primary-foreground overflow-x-hidden relative")}>
                 <CartProvider>
-                    <GlobalBackground />
                     <div className="relative z-10">
                         {children}
                         <CartDrawer />

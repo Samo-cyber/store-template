@@ -2,7 +2,6 @@ import { supabase } from './supabase';
 
 export interface OrderData {
     customer_name: string;
-    customer_email: string;
     customer_phone: string;
     address: {
         street: string;
@@ -29,7 +28,6 @@ export async function submitOrder(orderData: OrderData) {
 
         const { data: orderId, error } = await supabase.rpc('create_order', {
             p_customer_name: orderData.customer_name,
-            p_customer_email: orderData.customer_email,
             p_customer_phone: orderData.customer_phone,
             p_address: orderData.address,
             p_total_amount: orderData.total_amount,
