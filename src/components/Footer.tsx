@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Facebook, Instagram, Twitter, Mail, ArrowRight, ChevronDown } from "lucide-react";
+import { Facebook, Instagram, Twitter, Mail, ArrowRight, ChevronDown, Send, Youtube } from "lucide-react";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { useState } from "react";
@@ -43,9 +43,8 @@ export default function Footer() {
                                 حيث تلتقي الفخامة بالأناقة. وجهتك الأولى للمنتجات العصرية الفاخرة في مصر.
                             </p>
                             <div className="text-sm text-slate-400 space-y-1">
-                                <p>108 شارع التسعين الشمالي، التجمع الخامس</p>
-                                <p>القاهرة، مصر</p>
                                 <p dir="ltr" className="text-right">+20 100 123 4567</p>
+                                <p>info@prestige-store.com</p>
                             </div>
                         </div>
                         <div className="space-y-3">
@@ -118,17 +117,20 @@ export default function Footer() {
                     {/* Social Links */}
                     <FooterSection title="تابعنا">
                         <div className="flex gap-4">
-                            <Link href="#" className="h-10 w-10 rounded-full bg-slate-900 flex items-center justify-center text-slate-400 hover:bg-white hover:text-black transition-all duration-300">
-                                <Twitter className="h-5 w-5" />
-                            </Link>
-                            <Link href="#" className="h-10 w-10 rounded-full bg-slate-900 flex items-center justify-center text-slate-400 hover:bg-white hover:text-black transition-all duration-300">
-                                <Instagram className="h-5 w-5" />
-                            </Link>
-                            <Link href="#" className="h-10 w-10 rounded-full bg-slate-900 flex items-center justify-center text-slate-400 hover:bg-white hover:text-black transition-all duration-300">
+                            <Link href="#" className="h-10 w-10 rounded-full bg-slate-900 flex items-center justify-center text-slate-400 hover:bg-[#1877F2] hover:text-white transition-all duration-300">
                                 <Facebook className="h-5 w-5" />
                             </Link>
-                            <Link href="#" className="h-10 w-10 rounded-full bg-slate-900 flex items-center justify-center text-slate-400 hover:bg-white hover:text-black transition-all duration-300">
-                                <Mail className="h-5 w-5" />
+                            <Link href="#" className="h-10 w-10 rounded-full bg-slate-900 flex items-center justify-center text-slate-400 hover:bg-[#E4405F] hover:text-white transition-all duration-300">
+                                <Instagram className="h-5 w-5" />
+                            </Link>
+                            <Link href="#" className="h-10 w-10 rounded-full bg-slate-900 flex items-center justify-center text-slate-400 hover:bg-[#1DA1F2] hover:text-white transition-all duration-300">
+                                <Twitter className="h-5 w-5" />
+                            </Link>
+                            <Link href="#" className="h-10 w-10 rounded-full bg-slate-900 flex items-center justify-center text-slate-400 hover:bg-[#0088cc] hover:text-white transition-all duration-300">
+                                <Send className="h-5 w-5" />
+                            </Link>
+                            <Link href="#" className="h-10 w-10 rounded-full bg-slate-900 flex items-center justify-center text-slate-400 hover:bg-[#FF0000] hover:text-white transition-all duration-300">
+                                <Youtube className="h-5 w-5" />
                             </Link>
                         </div>
                     </FooterSection>
