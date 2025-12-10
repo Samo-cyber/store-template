@@ -40,8 +40,8 @@ export async function submitOrder(orderData: OrderData) {
 
         return { success: true, orderId };
 
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error submitting order:', error);
-        return { success: false, error };
+        return { success: false, error: error.message || "Unknown error occurred" };
     }
 }

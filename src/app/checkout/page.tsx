@@ -46,7 +46,17 @@ export default function CheckoutPage() {
             clearCart();
             router.push("/checkout/success");
         } else {
-            alert("حدث خطأ أثناء إتمام الطلب. يرجى المحاولة مرة أخرى.");
+            let errorMessage = "حدث خطأ أثناء إتمام الطلب. يرجى المحاولة مرة أخرى.";
+
+            if (result.error && typeof result.error === 'string') {
+                if (result.error.includes("Insufficient stock")) {
+                    errorMessage = "عذراً، بعض المنتجات في سلتك نفذت كميتها. يرجى مراجعة السلة.";
+                } else {
+                    errorMessage = "حدث خطأ: " + result.error;
+                }
+            }
+
+            alert(errorMessage);
             setIsSubmitting(false);
         }
     };
