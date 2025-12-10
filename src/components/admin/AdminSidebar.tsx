@@ -31,7 +31,9 @@ export function AdminSidebar() {
     const router = useRouter();
 
     const handleLogout = async () => {
-        await supabase.auth.signOut();
+        if (supabase) {
+            await supabase.auth.signOut();
+        }
         router.push("/admin/login");
     };
 

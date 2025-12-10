@@ -20,6 +20,13 @@ export interface OrderData {
 
 export async function submitOrder(orderData: OrderData) {
     try {
+        if (!supabase) {
+            console.warn("Supabase not configured. Mocking order submission.");
+            // Simulate network delay
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            return { success: true, orderId: "mock-order-id-" + Math.random().toString(36).substr(2, 9) };
+        }
+
         const { data: orderId, error } = await supabase.rpc('create_order', {
             p_customer_name: orderData.customer_name,
             p_customer_email: orderData.customer_email,

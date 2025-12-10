@@ -27,6 +27,14 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
             }
 
             setLoading(true);
+
+            if (!supabase) {
+                // Mock search or empty
+                setResults([]);
+                setLoading(false);
+                return;
+            }
+
             const { data, error } = await supabase
                 .from('products')
                 .select('*')

@@ -25,6 +25,12 @@ export default function AdminLayout({
                 return;
             }
 
+            if (!supabase) {
+                // Allow access if Supabase is not configured (demo mode)
+                setIsLoading(false);
+                return;
+            }
+
             const { data: { session } } = await supabase.auth.getSession();
 
             if (!session) {

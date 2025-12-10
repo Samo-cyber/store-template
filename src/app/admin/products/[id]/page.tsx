@@ -14,13 +14,11 @@ export default function EditProductPage() {
 
     useEffect(() => {
         async function loadProduct() {
-            const { data } = await supabase
-                .from('products')
-                .select('*')
-                .eq('id', params.id)
-                .single();
+            // Use getProductById which handles mock data if Supabase is missing
+            const { getProductById } = await import("@/lib/products");
+            const productData = await getProductById(params.id as string);
 
-            if (data) setProduct(data as Product);
+            if (productData) setProduct(productData);
             setLoading(false);
         }
         loadProduct();

@@ -45,6 +45,13 @@ export default function AdminOrdersPage() {
 
     async function loadOrders() {
         setLoading(true);
+
+        if (!supabase) {
+            setOrders([]);
+            setLoading(false);
+            return;
+        }
+
         const { data } = await supabase
             .from('orders')
             .select('*')
@@ -55,6 +62,8 @@ export default function AdminOrdersPage() {
     }
 
     async function updateStatus(id: string, newStatus: string) {
+        if (!supabase) return;
+
         const { error } = await supabase
             .from('orders')
             .update({ status: newStatus })
@@ -69,6 +78,13 @@ export default function AdminOrdersPage() {
 
     async function loadOrderItems(orderId: string) {
         setItemsLoading(true);
+
+        if (!supabase) {
+            setSelectedOrderItems([]);
+            setItemsLoading(false);
+            return;
+        }
+
         const { data } = await supabase
             .from('order_items')
             .select(`

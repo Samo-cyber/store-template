@@ -15,6 +15,16 @@ export default function AdminDashboard() {
     useEffect(() => {
         async function loadStats() {
             try {
+                if (!supabase) {
+                    setStats({
+                        totalRevenue: 0,
+                        totalOrders: 0,
+                        totalProducts: 0,
+                    });
+                    setLoading(false);
+                    return;
+                }
+
                 // Fetch Orders Count & Revenue
                 const { data: orders } = await supabase
                     .from('orders')

@@ -30,6 +30,13 @@ export function ProductForm({ initialData, isEdit = false }: ProductFormProps) {
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         try {
             setUploading(true);
+
+            if (!supabase) {
+                alert("رفع الصور غير متاح في الوضع التجريبي");
+                setUploading(false);
+                return;
+            }
+
             if (!e.target.files || e.target.files.length === 0) {
                 throw new Error('You must select an image to upload.');
             }
@@ -39,7 +46,7 @@ export function ProductForm({ initialData, isEdit = false }: ProductFormProps) {
             const fileName = `${Math.random()}.${fileExt}`;
             const filePath = `${fileName}`;
 
-            const { error: uploadError } = await supabase.storage
+            const { error: uploadError } = await supabase!.storage
                 .from('products')
                 .upload(filePath, file);
 
@@ -47,7 +54,7 @@ export function ProductForm({ initialData, isEdit = false }: ProductFormProps) {
                 throw uploadError;
             }
 
-            const { data } = supabase.storage.from('products').getPublicUrl(filePath);
+            const { data } = supabase!.storage.from('products').getPublicUrl(filePath);
 
             setFormData({ ...formData, image_url: data.publicUrl });
         } catch (error: any) {
@@ -61,15 +68,21 @@ export function ProductForm({ initialData, isEdit = false }: ProductFormProps) {
         e.preventDefault();
         setLoading(true);
 
+        if (!supabase) {
+            alert("حفظ التعديلات غير متاح في الوضع التجريبي");
+            setLoading(false);
+            return;
+        }
+
         try {
             if (isEdit && initialData) {
-                const { error } = await supabase
+                const { error } = await supabase!
                     .from('products')
                     .update(formData)
                     .eq('id', initialData.id);
                 if (error) throw error;
             } else {
-                const { error } = await supabase
+                const { error } = await supabase!
                     .from('products')
                     .insert([formData]);
                 if (error) throw error;

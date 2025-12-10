@@ -19,6 +19,16 @@ export default function AdminProductsPage() {
 
     async function loadProducts() {
         setLoading(true);
+
+        if (!supabase) {
+            // Use the public getProducts which handles mock data
+            const { getProducts } = await import("@/lib/products");
+            const data = await getProducts();
+            setProducts(data);
+            setLoading(false);
+            return;
+        }
+
         const { data } = await supabase
             .from('products')
             .select('*')
@@ -30,6 +40,11 @@ export default function AdminProductsPage() {
 
     async function handleDelete(id: string) {
         if (!confirm("هل أنت متأكد من حذف هذا المنتج؟")) return;
+
+        if (!supabase) {
+            alert("لا يمكن حذف المنتجات في الوضع التجريبي");
+            return;
+        }
 
         const { error } = await supabase
             .from('products')

@@ -20,6 +20,12 @@ export default function AdminLoginPage() {
         setLoading(true);
         setError(null);
 
+        if (!supabase) {
+            setError("Supabase غير مهيأ. يرجى التحقق من ملف .env");
+            setLoading(false);
+            return;
+        }
+
         try {
             const { error } = await supabase.auth.signInWithPassword({
                 email,
