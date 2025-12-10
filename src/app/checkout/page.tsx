@@ -149,11 +149,11 @@ export default function CheckoutPage() {
                     </div>
                 </motion.div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+                <div className="max-w-4xl mx-auto">
                     {/* Main Content Area */}
                     <motion.div
                         layout
-                        className="lg:col-span-7 space-y-8"
+                        className="space-y-8"
                     >
                         <AnimatePresence mode="wait">
                             {currentStep === 1 && (
@@ -352,57 +352,6 @@ export default function CheckoutPage() {
                                     {!isSubmitting && <CheckCircle2 className="h-5 w-5" />}
                                 </Button>
                             )}
-                        </div>
-                    </motion.div>
-
-                    {/* Order Summary Sidebar */}
-                    <motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.4 }}
-                        className="lg:col-span-5"
-                    >
-                        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl sticky top-24 space-y-8">
-                            <h2 className="text-xl font-bold text-white">ملخص السلة</h2>
-                            <div className="space-y-6 max-h-[300px] overflow-auto pr-2 custom-scrollbar">
-                                {items.map((item) => (
-                                    <div key={item.id} className="flex gap-4 group">
-                                        <div className="h-16 w-16 rounded-xl bg-slate-800 overflow-hidden flex-shrink-0 border border-white/10">
-                                            <img src={item.image} alt={item.title} className="h-full w-full object-cover" />
-                                        </div>
-                                        <div className="flex-1">
-                                            <h4 className="text-sm font-medium text-white line-clamp-2">{item.title}</h4>
-                                            <div className="flex justify-between items-center mt-1">
-                                                <p className="text-xs text-slate-400">الكمية: {item.quantity}</p>
-                                                <p className="text-sm font-bold text-primary">{item.price.toFixed(2)} ج.م</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-
-                            <div className="border-t border-white/10 pt-6 space-y-3">
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-slate-400">المجموع الفرعي</span>
-                                    <span className="text-white">{cartTotal.toFixed(2)} ج.م</span>
-                                </div>
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-slate-400">الشحن</span>
-                                    <span className="text-green-400 font-medium flex items-center gap-1">
-                                        <Truck className="h-3 w-3" />
-                                        مجاني
-                                    </span>
-                                </div>
-                                <div className="flex justify-between text-xl font-bold pt-4 border-t border-white/10 mt-4">
-                                    <span className="text-white">الإجمالي</span>
-                                    <span className="text-primary">{cartTotal.toFixed(2)} ج.م</span>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center justify-center gap-2 text-xs text-slate-500 bg-white/5 p-3 rounded-lg">
-                                <ShieldCheck className="h-4 w-4" />
-                                جميع البيانات مشفرة وآمنة
-                            </div>
                         </div>
                     </motion.div>
                 </div>
