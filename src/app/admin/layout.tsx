@@ -44,7 +44,7 @@ export default function AdminLayout({
             const { data: { session } } = await supabase.auth.getSession();
 
             if (!session) {
-                router.push("/admin/login");
+                router.push("/admin/login?source=client");
             } else {
                 setIsLoading(false);
             }

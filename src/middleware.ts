@@ -62,7 +62,7 @@ export async function middleware(req: NextRequest) {
 
         // Redirect unauthenticated users to login page
         if (!session) {
-            return NextResponse.redirect(new URL('/admin/login', req.url))
+            return NextResponse.redirect(new URL('/admin/login?source=middleware', req.url))
         }
     }
 
