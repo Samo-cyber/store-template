@@ -19,6 +19,12 @@ interface ProductDetailsProps {
 export default function ProductDetails({ product, relatedProducts }: ProductDetailsProps) {
     const { addToCart } = useCart();
     const [quantity, setQuantity] = useState(1);
+    const [selectedImage, setSelectedImage] = useState(product.image_url);
+
+    // Use images array if available, otherwise fallback to single image
+    const images = product.images && product.images.length > 0
+        ? product.images
+        : [product.image_url];
 
     const handleAddToCart = () => {
         addToCart({
@@ -44,7 +50,7 @@ export default function ProductDetails({ product, relatedProducts }: ProductDeta
                     <div className="space-y-4">
                         <div className="aspect-square bg-muted rounded-2xl overflow-hidden border shadow-sm relative group">
                             <Image
-                                src={product.image_url}
+                                src={selectedImage}
                                 alt={product.title}
                                 fill
                                 className="object-cover transition-transform duration-500 group-hover:scale-110"
@@ -55,20 +61,26 @@ export default function ProductDetails({ product, relatedProducts }: ProductDeta
                                 {product.category}
                             </div>
                         </div>
-                        {/* Mock Gallery Thumbnails */}
-                        <div className="grid grid-cols-4 gap-4">
-                            {[...Array(4)].map((_, i) => (
-                                <div key={i} className={`aspect-square rounded-xl overflow-hidden border cursor-pointer relative transition-all ${i === 0 ? 'ring-2 ring-primary ring-offset-2' : 'hover:opacity-80'}`}>
-                                    <Image
-                                        src={product.image_url}
-                                        alt={`View ${i + 1}`}
-                                        fill
-                                        className="object-cover"
-                                        sizes="(max-width: 768px) 25vw, 10vw"
-                                    />
-                                </div>
-                            ))}
-                        </div>
+                        {/* Gallery Thumbnails */}
+                        {images.length > 1 && (
+                            <div className="grid grid-cols-4 gap-4">
+                                {images.map((img, i) => (
+                                    <div
+                                        key={i}
+                                        onClick={() => setSelectedImage(img)}
+                                        className={`aspect-square rounded-xl overflow-hidden border cursor-pointer relative transition-all ${selectedImage === img ? 'ring-2 ring-primary ring-offset-2' : 'hover:opacity-80'}`}
+                                    >
+                                        <Image
+                                            src={img}
+                                            alt={`${product.title} - ${i + 1}`}
+                                            fill
+                                            className="object-cover"
+                                            sizes="(max-width: 768px) 25vw, 10vw"
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     {/* Product Info Section */}

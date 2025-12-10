@@ -71,24 +71,28 @@ export default function ShippingPage() {
         setAdding(false);
     };
 
-    const handleToggleFreeShipping = async () => {
-        const newState = { ...freeShipping, isActive: !freeShipping.isActive };
-        setFreeShipping(newState);
-        setSavingSettings(true);
-        await updateSetting('free_shipping', newState);
-        setSavingSettings(false);
+    const handleToggleFreeShipping = () => {
+        setFreeShipping(prev => ({ ...prev, isActive: !prev.isActive }));
     };
 
-    const handleDateSelect = async (newDate: Date | undefined) => {
+    const handleDateSelect = (newDate: Date | undefined) => {
         setDate(newDate);
         if (newDate) {
-            // Set time to end of day for better UX
             newDate.setHours(23, 59, 59, 999);
-            const isoDate = newDate.toISOString();
-            const newState = { ...freeShipping, endDate: isoDate };
-            setFreeShipping(newState);
-            setSavingSettings(true);
-            await updateSetting('free_shipping', newState);
+            setFreeShipping(prev => ({ ...prev, endDate: newDate.toISOString() }));
+        } else {
+            setFreeShipping(prev => ({ ...prev, endDate: null }));
+        }
+    };
+
+    const saveFreeShippingSettings = async () => {
+        setSavingSettings(true);
+        try {
+            await updateSetting('free_shipping', freeShipping);
+            alert("تم حفظ إعدادات الشحن المجاني بنجاح");
+        } catch (error) {
+            alert("حدث خطأ أثناء الحفظ");
+        } finally {
             setSavingSettings(false);
         }
     };
@@ -114,21 +118,26 @@ export default function ShippingPage() {
 
             {/* Free Shipping Section */}
             <div className="bg-card border rounded-xl p-6 shadow-sm space-y-6">
-                <div className="flex items-center gap-3 border-b pb-4">
-                    <div className="h-10 w-10 rounded-full bg-green-500/10 flex items-center justify-center">
-                        <Timer className="h-5 w-5 text-green-500" />
+                <div className="flex items-center justify-between border-b pb-4">
+                    <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-full bg-green-500/10 flex items-center justify-center">
+                            <Timer className="h-5 w-5 text-green-500" />
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-lg">عرض الشحن المجاني</h3>
+                            <p className="text-sm text-muted-foreground">تفعيل شحن مجاني لجميع الطلبات لفترة محدودة</p>
+                        </div>
                     </div>
-                    <div>
-                        <h3 className="font-bold text-lg">عرض الشحن المجاني</h3>
-                        <p className="text-sm text-muted-foreground">تفعيل شحن مجاني لجميع الطلبات لفترة محدودة</p>
-                    </div>
+                    <Button onClick={saveFreeShippingSettings} disabled={savingSettings} className="gap-2">
+                        {savingSettings ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                        حفظ العرض
+                    </Button>
                 </div>
 
                 <div className="flex flex-col md:flex-row gap-8 items-start md:items-center">
                     <div className="flex items-center gap-4">
                         <button
                             onClick={handleToggleFreeShipping}
-                            disabled={savingSettings}
                             className={`transition-colors ${freeShipping.isActive ? "text-green-500" : "text-slate-400"}`}
                         >
                             {freeShipping.isActive ? (
