@@ -281,14 +281,25 @@ export default function CheckoutPage() {
                                         </div>
                                     </div>
 
-                                    <div className="space-y-3">
-                                        <h3 className="font-medium text-white">المنتجات:</h3>
-                                        {items.map((item) => (
-                                            <div key={item.id} className="flex justify-between text-sm">
-                                                <span className="text-slate-300">{item.title} (x{item.quantity})</span>
-                                                <span className="text-white">{(item.price * item.quantity).toFixed(2)} ج.م</span>
-                                            </div>
-                                        ))}
+                                    <div className="space-y-4">
+                                        <h3 className="font-medium text-white flex items-center gap-2">
+                                            <ShoppingBag className="h-4 w-4 text-primary" />
+                                            المنتجات ({items.length})
+                                        </h3>
+                                        <div className="space-y-3 max-h-[200px] overflow-auto pr-2 custom-scrollbar bg-white/5 p-4 rounded-xl border border-white/5">
+                                            {items.map((item) => (
+                                                <div key={item.id} className="flex gap-3 items-center">
+                                                    <div className="h-12 w-12 rounded-lg bg-slate-800 overflow-hidden flex-shrink-0 border border-white/10">
+                                                        <img src={item.image} alt={item.title} className="h-full w-full object-cover" />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <h4 className="text-sm font-medium text-white truncate">{item.title}</h4>
+                                                        <p className="text-xs text-slate-400">الكمية: {item.quantity}</p>
+                                                    </div>
+                                                    <span className="text-sm font-bold text-primary whitespace-nowrap">{(item.price * item.quantity).toFixed(2)} ج.م</span>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
 
                                     <div className="border-t border-white/10 pt-4 space-y-2">
