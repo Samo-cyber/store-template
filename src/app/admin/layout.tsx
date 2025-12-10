@@ -44,6 +44,7 @@ export default function AdminLayout({
             const { data: { session } } = await supabase.auth.getSession();
 
             if (!session) {
+                console.log("AdminLayout: No session found, redirecting to login");
                 router.push("/admin/login?source=client");
             } else {
                 setIsLoading(false);
@@ -51,6 +52,21 @@ export default function AdminLayout({
         };
 
         checkAuth();
+
+        // Listen for auth changes
+        const { data: { subscription } } = supabase?.auth.onAuthStateChange((event, session) => {
+            console.log("Auth state changed:", event, session);
+            if (event === 'SIGNED_OUT' || (event === 'TOKEN_REFRESHED' && !session)) {
+                if (!isLoginPage) {
+                    console.log("AdminLayout: Auth event triggered redirect");
+                    router.push("/admin/login?source=auth_event");
+                }
+            }
+        }) ?? { data: { subscription: null } };
+
+        return () => {
+            subscription?.unsubscribe();
+        };
     }, [pathname, router, isLoginPage, supabase]);
 
     if (isLoading) {
