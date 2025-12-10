@@ -18,7 +18,13 @@ export default function FreeShippingBanner() {
     }, []);
 
     useEffect(() => {
-        if (!settings?.isActive || !settings.endDate) return;
+        if (!settings?.isActive) return;
+
+        // If no end date, it's indefinite
+        if (!settings.endDate) {
+            setTimeLeft("");
+            return;
+        }
 
         const interval = setInterval(() => {
             const now = new Date().getTime();
@@ -42,7 +48,8 @@ export default function FreeShippingBanner() {
         return () => clearInterval(interval);
     }, [settings]);
 
-    if (!settings?.isActive || !settings.endDate || timeLeft === "EXPIRED") return null;
+    if (!settings?.isActive) return null;
+    if (settings.endDate && timeLeft === "EXPIRED") return null;
 
     return (
         <AnimatePresence>
@@ -57,10 +64,12 @@ export default function FreeShippingBanner() {
                         <span>شحن مجاني لفترة محدودة!</span>
                     </div>
 
-                    <div className="flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full">
-                        <Timer className="h-3 w-3" />
-                        <span className="font-bold font-mono dir-ltr">{timeLeft}</span>
-                    </div>
+                    {settings.endDate && timeLeft && (
+                        <div className="flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full">
+                            <Timer className="h-3 w-3" />
+                            <span className="font-bold font-mono dir-ltr">{timeLeft}</span>
+                        </div>
+                    )}
                 </div>
             </motion.div>
         </AnimatePresence>

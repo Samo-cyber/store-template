@@ -42,11 +42,15 @@ export default function CheckoutPage() {
 
             // Check if free shipping is active
             let isFree = false;
-            if (freeSettings.isActive && freeSettings.endDate) {
-                const endDate = new Date(freeSettings.endDate);
-                const now = new Date();
-                if (endDate > now) {
+            if (freeSettings.isActive) {
+                if (!freeSettings.endDate) {
                     isFree = true;
+                } else {
+                    const endDate = new Date(freeSettings.endDate);
+                    const now = new Date();
+                    if (endDate > now) {
+                        isFree = true;
+                    }
                 }
             }
 
