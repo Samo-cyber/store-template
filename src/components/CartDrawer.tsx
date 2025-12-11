@@ -4,11 +4,39 @@ import { useCart } from "@/context/CartContext";
 import { Button } from "@/components/ui/Button";
 import { X, Minus, Plus, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 
 export default function CartDrawer() {
     const { items, isCartOpen, toggleCart, removeFromCart, cartTotal, addToCart } = useCart();
+    const historyPushedRef = useRef(false);
+
+    // Handle back button behavior
+    useEffect(() => {
+        if (isCartOpen) {
+            // Push state when cart opens
+            window.history.pushState({ cartOpen: true }, "");
+            historyPushedRef.current = true;
+
+            const handlePopState = () => {
+                // If back button is pressed, close the cart
+                // The state is already popped by the browser
+                historyPushedRef.current = false; // Prevent cleanup from popping again
+                toggleCart();
+            };
+
+            window.addEventListener('popstate', handlePopState);
+
+            return () => {
+                window.removeEventListener('popstate', handlePopState);
+                // If we are closing and history was pushed (and not popped by back button), pop it now
+                if (historyPushedRef.current) {
+                    window.history.back();
+                    historyPushedRef.current = false;
+                }
+            };
+        }
+    }, [isCartOpen, toggleCart]);
 
     // Prevent body scroll when cart is open
     useEffect(() => {
