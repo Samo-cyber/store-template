@@ -6,6 +6,8 @@ import { CartProvider } from "@/context/CartContext";
 import CartDrawer from "@/components/CartDrawer";
 
 
+import { NoImageDownload } from "@/components/NoImageDownload";
+
 const cairo = Cairo({ subsets: ["arabic"] });
 
 export const metadata: Metadata = {
@@ -22,6 +24,7 @@ export default function RootLayout({
         <html lang="ar" dir="rtl" className="scroll-smooth dark">
             <body className={cn(cairo.className, "min-h-screen bg-slate-950 font-sans antialiased selection:bg-primary selection:text-primary-foreground overflow-x-hidden relative")}>
                 <CartProvider>
+                    <NoImageDownload />
                     <div className="relative z-10">
 
                         {children}
