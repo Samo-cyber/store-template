@@ -56,6 +56,18 @@ export function AdminSidebar() {
 
     const toggleSidebar = () => setIsOpen(!isOpen);
 
+    // Dynamic navigation items based on current path
+    const getNavItems = () => {
+        const basePath = pathname?.match(/^\/store\/[^/]+/)?.[0] || "";
+
+        return navItems.map(item => ({
+            ...item,
+            href: `${basePath}${item.href}`
+        }));
+    };
+
+    const currentNavItems = getNavItems();
+
     return (
         <>
             {/* Mobile Toggle Button */}
@@ -83,7 +95,7 @@ export function AdminSidebar() {
                     <p className="text-sm text-muted-foreground">برستيج ستور</p>
                 </div>
                 <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-                    {navItems.map((item) => (
+                    {currentNavItems.map((item) => (
                         <Link
                             key={item.href}
                             href={item.href}

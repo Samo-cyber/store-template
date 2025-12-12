@@ -1,8 +1,17 @@
 import { createClient } from '@supabase/supabase-js';
 import { supabase as globalSupabase } from './supabase';
 
+import { createBrowserClient } from "@supabase/ssr";
+
 // Helper to get a working client
 const getClient = () => {
+    if (typeof window !== 'undefined') {
+        return createBrowserClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
+    }
+
     if (globalSupabase) return globalSupabase;
 
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -37,11 +46,11 @@ export interface TopProduct {
     total_revenue: number;
 }
 
-export async function getDashboardStats(): Promise<DashboardStats> {
+export async function getDashboardStats(storeId: string): Promise<DashboardStats> {
     const supabase = getClient();
     if (!supabase) return { totalRevenue: 0, totalOrders: 0, totalProducts: 0, lowStockCount: 0 };
 
-    const { data, error } = await supabase.rpc('get_dashboard_stats');
+    const { data, error } = await supabase.rpc('get_dashboard_stats', { p_store_id: storeId });
 
     if (error) {
         console.error('Error fetching dashboard stats:', error);
@@ -51,11 +60,11 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     return data as DashboardStats;
 }
 
-export async function getMonthlySales(): Promise<MonthlySales[]> {
+export async function getMonthlySales(storeId: string): Promise<MonthlySales[]> {
     const supabase = getClient();
     if (!supabase) return [];
 
-    const { data, error } = await supabase.rpc('get_monthly_sales');
+    const { data, error } = await supabase.rpc('get_monthly_sales', { p_store_id: storeId });
 
     if (error) {
         console.error('Error fetching monthly sales:', error);
@@ -66,11 +75,11 @@ export async function getMonthlySales(): Promise<MonthlySales[]> {
     return (data as MonthlySales[]).sort((a, b) => a.month.localeCompare(b.month));
 }
 
-export async function getTopProducts(): Promise<TopProduct[]> {
+export async function getTopProducts(storeId: string): Promise<TopProduct[]> {
     const supabase = getClient();
     if (!supabase) return [];
 
-    const { data, error } = await supabase.rpc('get_top_products');
+    const { data, error } = await supabase.rpc('get_top_products', { p_store_id: storeId });
 
     if (error) {
         console.error('Error fetching top products:', error);

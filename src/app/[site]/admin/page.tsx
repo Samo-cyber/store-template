@@ -22,7 +22,9 @@ import {
     Area
 } from 'recharts';
 
-export default function AdminDashboard() {
+import { getStoreBySlug } from "@/lib/stores";
+
+export default function AdminDashboard({ params }: { params: { site: string } }) {
     const [stats, setStats] = useState<DashboardStats>({
         totalRevenue: 0,
         totalOrders: 0,
@@ -36,10 +38,18 @@ export default function AdminDashboard() {
     useEffect(() => {
         async function loadData() {
             try {
+                // Fetch store first
+                const store = await getStoreBySlug(params.site);
+
+                if (!store) {
+                    console.error('Store not found');
+                    return;
+                }
+
                 const [statsData, salesData, productsData] = await Promise.all([
-                    getDashboardStats(),
-                    getMonthlySales(),
-                    getTopProducts()
+                    getDashboardStats(store.id),
+                    getMonthlySales(store.id),
+                    getTopProducts(store.id)
                 ]);
 
                 setStats(statsData);
@@ -53,7 +63,7 @@ export default function AdminDashboard() {
         }
 
         loadData();
-    }, []);
+    }, [params.site]);
 
     if (loading) {
         return (

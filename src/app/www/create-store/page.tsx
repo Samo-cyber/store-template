@@ -54,6 +54,12 @@ export default function CreateStorePage() {
                 return;
             }
 
+            // Update user profile to store_owner
+            await supabase
+                .from('profiles')
+                .update({ role: 'store_owner' })
+                .eq('id', session.user.id);
+
             // Redirect to the new store's admin dashboard
             // We need to redirect to the subdomain
             // e.g. slug.domain.com/admin
