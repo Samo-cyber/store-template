@@ -60,7 +60,7 @@ export default function CartDrawer() {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={toggleCart}
-                        className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm"
+                        className="fixed inset-0 z-[1000] bg-background/80 backdrop-blur-sm"
                     />
                     {/* Drawer */}
                     <motion.div
@@ -68,7 +68,7 @@ export default function CartDrawer() {
                         animate={{ x: 0 }}
                         exit={{ x: "100%" }}
                         transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                        className="fixed inset-y-0 right-0 z-50 flex h-full w-full flex-col border-l bg-background shadow-xl sm:max-w-md"
+                        className="fixed inset-y-0 right-0 z-[1000] flex h-full w-full flex-col border-l bg-background shadow-xl sm:max-w-md"
                     >
                         <div className="flex items-center justify-between px-4 py-4 border-b">
                             <h2 className="text-lg font-semibold">سلة التسوق</h2>

@@ -56,18 +56,23 @@ export default function FreeShippingBanner() {
             <motion.div
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: "auto", opacity: 1 }}
-                className="bg-gradient-to-r from-primary to-purple-600 text-white relative z-[100]"
+                className="bg-gradient-to-r from-violet-600 via-primary to-indigo-600 text-white relative z-40 overflow-hidden"
             >
-                <div className="container mx-auto px-4 py-2 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-6 text-sm font-medium">
-                    <div className="flex items-center gap-2 animate-pulse">
-                        <Truck className="h-4 w-4" />
-                        <span>شحن مجاني لفترة محدودة!</span>
+                <div className="absolute inset-0 bg-[url('/noise.png')] opacity-10 mix-blend-overlay"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 translate-x-[-100%] animate-shimmer"></div>
+
+                <div className="container mx-auto px-4 py-3 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-8 text-sm font-medium relative">
+                    <div className="flex items-center gap-2.5 animate-pulse">
+                        <div className="p-1.5 bg-white/20 rounded-full backdrop-blur-sm">
+                            <Truck className="h-4 w-4" />
+                        </div>
+                        <span className="tracking-wide">شحن مجاني لفترة محدودة!</span>
                     </div>
 
                     {settings.endDate && timeLeft && (
-                        <div className="flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full">
-                            <Timer className="h-3 w-3" />
-                            <span className="font-bold font-mono dir-ltr">{timeLeft}</span>
+                        <div className="flex items-center gap-2 bg-black/20 px-4 py-1.5 rounded-full border border-white/10 backdrop-blur-md shadow-sm">
+                            <Timer className="h-3.5 w-3.5 text-yellow-300" />
+                            <span className="font-bold font-mono dir-ltr tracking-wider text-yellow-100">{timeLeft}</span>
                         </div>
                     )}
                 </div>
