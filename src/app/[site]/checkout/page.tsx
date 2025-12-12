@@ -14,7 +14,9 @@ import { getShippingRateForGovernorate, getShippingRates, ShippingRate } from "@
 import { getFreeShippingSettings } from "@/lib/settings";
 import FreeShippingBanner from "@/components/FreeShippingBanner";
 
-export default function CheckoutPage() {
+import { getStoreBySlug } from "@/lib/stores";
+
+export default function CheckoutPage({ params }: { params: { site: string } }) {
     const { items, cartTotal, clearCart } = useCart();
     const router = useRouter();
     const [currentStep, setCurrentStep] = useState(1);
@@ -22,6 +24,7 @@ export default function CheckoutPage() {
     const [shippingCost, setShippingCost] = useState(0);
     const [governorates, setGovernorates] = useState<ShippingRate[]>([]);
     const [isFreeShipping, setIsFreeShipping] = useState(false);
+    const [storeId, setStoreId] = useState<string>('00000000-0000-0000-0000-000000000000');
 
     const [formData, setFormData] = useState({
         fullName: "",
@@ -33,10 +36,21 @@ export default function CheckoutPage() {
     // Fetch initial data
     useEffect(() => {
         const loadData = async () => {
+            // Fetch store ID
+            try {
+                const store = await getStoreBySlug(params.site);
+                if (store) {
+                    setStoreId(store.id);
+                }
+            } catch (e) {
+                console.error("Error fetching store:", e);
+            }
+
             const [rates, freeSettings] = await Promise.all([
                 getShippingRates(),
                 getFreeShippingSettings()
             ]);
+
 
             setGovernorates(rates);
 
@@ -129,7 +143,8 @@ export default function CheckoutPage() {
                 price: item.price
             })),
             total_amount: cartTotal + shippingCost,
-            shipping_cost: shippingCost
+            shipping_cost: shippingCost,
+            store_id: storeId
         };
 
         const result = await submitOrder(orderData);

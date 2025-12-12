@@ -10,11 +10,29 @@ import FreeShippingBanner from "@/components/FreeShippingBanner";
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-export default async function Home() {
-    const featuredProducts = await getFeaturedProducts();
-    const bestSellers = await getBestSellers();
-    const newArrivals = await getNewArrivals();
-    const offers = await getOffers();
+import { getStoreBySlug } from "@/lib/stores";
+import { notFound } from "next/navigation";
+
+export default async function Home({ params }: { params: { site: string } }) {
+    const store = await getStoreBySlug(params.site);
+
+    if (!store) {
+        // If store not found, maybe show a 404 or a "Create Store" page
+        // For now, let's assume 'demo' is a valid fallback or just 404
+        if (params.site !== 'demo') {
+            notFound();
+        }
+        // If demo and not found in DB, we might want to show mock data
+        // But getStoreBySlug returns null if not found.
+        // Let's proceed with null storeId which triggers mock data in getProducts
+    }
+
+    const storeId = store?.id;
+
+    const featuredProducts = await getFeaturedProducts(4, storeId);
+    const bestSellers = await getBestSellers(4, storeId);
+    const newArrivals = await getNewArrivals(4, storeId);
+    const offers = await getOffers(4, storeId);
 
     return (
         <main className="min-h-screen flex flex-col">

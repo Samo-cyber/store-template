@@ -5,12 +5,15 @@ import { getProductById, getProductsByCategory } from "@/lib/products";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import { getStoreBySlug } from "@/lib/stores";
+
 interface Props {
-    params: { id: string };
+    params: { site: string; id: string };
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-    const product = await getProductById(params.id);
+    const store = await getStoreBySlug(params.site);
+    const product = await getProductById(params.id, store?.id);
 
     if (!product) {
         return {
@@ -19,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
 
     return {
-        title: `${product.title} | برستيج`,
+        title: `${product.title} | ${store?.name || 'برستيج'}`,
         description: product.description,
         openGraph: {
             title: product.title,
@@ -30,13 +33,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ProductPage({ params }: Props) {
-    const product = await getProductById(params.id);
+    const store = await getStoreBySlug(params.site);
+    const product = await getProductById(params.id, store?.id);
 
     if (!product) {
         notFound();
     }
 
-    const related = await getProductsByCategory(product.category);
+    const related = await getProductsByCategory(product.category, store?.id);
     const relatedProducts = related
         .filter(p => p.id !== product.id)
         .sort(() => 0.5 - Math.random())

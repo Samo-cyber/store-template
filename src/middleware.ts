@@ -1,14 +1,59 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-export async function middleware(req: NextRequest) {
-    // COMPLETELY DISABLE SERVER-SIDE AUTH CHECK FOR NOW
-    // to prevent cookie conflicts between client and server.
-    // We will rely on AdminLayout.tsx (Client Side) to protect the routes.
-
-    return NextResponse.next()
-}
-
 export const config = {
-    matcher: ['/admin/:path*'],
+    matcher: [
+        /*
+         * Match all paths except for:
+         * 1. /api routes
+         * 2. /_next (Next.js internals)
+         * 3. /_static (inside /public)
+         * 4. all root files inside /public (e.g. /favicon.ico)
+         */
+        "/((?!api/|_next/|_static/|[\\w-]+\\.\\w+).*)",
+    ],
+};
+
+export default async function middleware(req: NextRequest) {
+    const url = req.nextUrl;
+    const hostname = req.headers.get("host") || "demo.localhost";
+
+    // Get the subdomain
+    // If localhost, default to 'demo' (or whatever default store slug you want)
+    // In production, extract subdomain from hostname
+    let currentHost = "demo";
+
+    if (hostname.includes("localhost")) {
+        // For local development, you can use subdomains if you edit /etc/hosts
+        // e.g. store1.localhost
+        const parts = hostname.split('.');
+        if (parts.length > 1 && parts[0] !== 'localhost') {
+            currentHost = parts[0];
+        } else {
+            // Default store for localhost:3000
+            currentHost = "demo";
+        }
+    } else {
+        // Production logic
+        // e.g. store1.domain.com -> store1
+        // domain.com -> www
+        const parts = hostname.split('.');
+        // Assuming domain.com (2 parts) or store.domain.com (3 parts)
+        if (parts.length > 2) {
+            currentHost = parts[0];
+        } else {
+            currentHost = "www"; // Handle root domain
+        }
+    }
+
+    // Rewrite the URL to /_sites/[site]/...
+    // We use [site] directory to handle tenants
+    // Note: We moved files to src/app/[site]/...
+    // So we rewrite to /[currentHost]/path
+
+    // Prevent infinite redirects/rewrites if we are already on the rewritten path (unlikely with this matcher)
+
+    url.pathname = `/${currentHost}${url.pathname}`;
+
+    return NextResponse.rewrite(url);
 }

@@ -15,6 +15,7 @@ import { COOKIE_NAME } from "@/lib/auth-config";
 
 interface Order {
     id: string;
+    store_id: string;
     customer_name: string;
     customer_email: string;
     customer_phone: string;

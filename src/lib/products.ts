@@ -3,6 +3,7 @@ import { supabase as globalSupabase } from './supabase';
 
 export interface Product {
     id: string;
+    store_id: string;
     title: string;
     description: string | null;
     price: number;
@@ -15,6 +16,7 @@ export interface Product {
 const MOCK_PRODUCTS: Product[] = [
     {
         id: '1',
+        store_id: 'mock-store',
         title: 'ساعة ذكية فاخرة',
         description: 'ساعة ذكية بمواصفات عالية وتصميم أنيق',
         price: 299,
@@ -24,6 +26,7 @@ const MOCK_PRODUCTS: Product[] = [
     },
     {
         id: '2',
+        store_id: 'mock-store',
         title: 'سماعات لاسلكية',
         description: 'سماعات بلوتوث مع عزل ضوضاء ممتاز',
         price: 159,
@@ -33,6 +36,7 @@ const MOCK_PRODUCTS: Product[] = [
     },
     {
         id: '3',
+        store_id: 'mock-store',
         title: 'عطر رجالي',
         description: 'عطر فاحر برائحة مميزة وثبات عالي',
         price: 89,
@@ -42,6 +46,7 @@ const MOCK_PRODUCTS: Product[] = [
     },
     {
         id: '4',
+        store_id: 'mock-store',
         title: 'نظارة شمسية',
         description: 'نظارة شمسية بتصميم عصري وحماية UV',
         price: 120,
@@ -66,18 +71,28 @@ const getClient = () => {
     return null;
 };
 
-export async function getProducts() {
+export async function getProducts(storeId?: string) {
     const supabase = getClient();
 
     if (!supabase) {
         console.warn('Supabase not configured, returning mock data');
+        // Filter mock data if storeId is provided
+        if (storeId) {
+            return MOCK_PRODUCTS.filter(p => p.store_id === storeId);
+        }
         return MOCK_PRODUCTS;
     }
 
-    const { data, error } = await supabase
+    let query = supabase
         .from('products')
         .select('*')
         .order('created_at', { ascending: false });
+
+    if (storeId) {
+        query = query.eq('store_id', storeId);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
         console.error('Error fetching products:', error);
@@ -87,18 +102,40 @@ export async function getProducts() {
     return data as Product[];
 }
 
-export async function getProductById(id: string) {
+export async function getProductById(id: string, storeId?: string) {
     const supabase = getClient();
 
     if (!supabase) {
-        return MOCK_PRODUCTS.find(p => p.id === id) || null;
+        const product = MOCK_PRODUCTS.find(p => p.id === id);
+        if (storeId && product?.store_id !== storeId) return null;
+        return product || null;
     }
 
-    const { data, error } = await supabase
+    let query = supabase
         .from('products')
         .select('*')
         .eq('id', id)
         .single();
+
+    // Note: .single() might fail if we add more filters that result in 0 rows, 
+    // but here we want to ensure the product belongs to the store.
+    // However, RLS might handle this if we set it up correctly.
+    // But explicit check is good.
+    // Actually, if we filter by store_id and id, it's still unique.
+
+    if (storeId) {
+        // We can't chain .eq after .single() usually, order matters.
+        // But supabase-js usually allows building query then executing.
+        // Let's rebuild query.
+        query = supabase
+            .from('products')
+            .select('*')
+            .eq('id', id)
+            .eq('store_id', storeId)
+            .single();
+    }
+
+    const { data, error } = await query;
 
     if (error) {
         console.error(`Error fetching product ${id}:`, error);
@@ -108,18 +145,24 @@ export async function getProductById(id: string) {
     return data as Product;
 }
 
-export async function getFeaturedProducts(limit = 4) {
+export async function getFeaturedProducts(limit = 4, storeId?: string) {
     const supabase = getClient();
 
     if (!supabase) {
         return MOCK_PRODUCTS.slice(0, limit);
     }
 
-    const { data, error } = await supabase
+    let query = supabase
         .from('products')
         .select('*')
         .limit(limit)
         .order('created_at', { ascending: false });
+
+    if (storeId) {
+        query = query.eq('store_id', storeId);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
         console.error('Error fetching featured products:', error);
@@ -129,17 +172,23 @@ export async function getFeaturedProducts(limit = 4) {
     return data as Product[];
 }
 
-export async function getProductsByCategory(category: string) {
+export async function getProductsByCategory(category: string, storeId?: string) {
     const supabase = getClient();
 
     if (!supabase) {
         return MOCK_PRODUCTS.filter(p => p.category === category);
     }
 
-    const { data, error } = await supabase
+    let query = supabase
         .from('products')
         .select('*')
         .eq('category', category);
+
+    if (storeId) {
+        query = query.eq('store_id', storeId);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
         console.error(`Error fetching products in category ${category}:`, error);
@@ -148,23 +197,29 @@ export async function getProductsByCategory(category: string) {
 
     return data as Product[];
 }
-export async function getBestSellers(limit = 4) {
+export async function getBestSellers(limit = 4, storeId?: string) {
     // For now, just return featured products as best sellers
-    return getFeaturedProducts(limit);
+    return getFeaturedProducts(limit, storeId);
 }
 
-export async function getNewArrivals(limit = 4) {
+export async function getNewArrivals(limit = 4, storeId?: string) {
     const supabase = getClient();
 
     if (!supabase) {
         return MOCK_PRODUCTS.slice(0, limit);
     }
 
-    const { data, error } = await supabase
+    let query = supabase
         .from('products')
         .select('*')
         .limit(limit)
         .order('created_at', { ascending: false });
+
+    if (storeId) {
+        query = query.eq('store_id', storeId);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
         console.error('Error fetching new arrivals:', error);
@@ -174,8 +229,8 @@ export async function getNewArrivals(limit = 4) {
     return data as Product[];
 }
 
-export async function getOffers(limit = 4) {
+export async function getOffers(limit = 4, storeId?: string) {
     // For now, return random products as offers
     // In a real app, you might query for products with a discount field
-    return getFeaturedProducts(limit);
+    return getFeaturedProducts(limit, storeId);
 }

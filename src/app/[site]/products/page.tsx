@@ -13,7 +13,9 @@ import { useEffect } from "react";
 import { getProducts, Product } from "@/lib/products";
 import { Loader2 } from "lucide-react";
 
-export default function ProductsPage() {
+import { getStoreBySlug } from "@/lib/stores";
+
+export default function ProductsPage({ params }: { params: { site: string } }) {
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedCategory, setSelectedCategory] = useState("الكل");
@@ -22,12 +24,24 @@ export default function ProductsPage() {
     useEffect(() => {
         async function loadProducts() {
             setLoading(true);
-            const data = await getProducts();
-            setProducts(data);
-            setLoading(false);
+            try {
+                const store = await getStoreBySlug(params.site);
+                if (store) {
+                    const data = await getProducts(store.id);
+                    setProducts(data);
+                } else {
+                    // Handle store not found or fallback
+                    const data = await getProducts(); // Fallback to mock/all
+                    setProducts(data);
+                }
+            } catch (error) {
+                console.error("Error loading products:", error);
+            } finally {
+                setLoading(false);
+            }
         }
         loadProducts();
-    }, []);
+    }, [params.site]);
 
     const categories = ["الكل", "إلكترونيات", "ملابس", "منزل", "إكسسوارات"];
 
