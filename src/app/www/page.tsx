@@ -49,7 +49,7 @@ export default async function LandingPage() {
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                     {!session ? (
                         <>
-                            <Link href="/create-store">
+                            <Link href="/login?view=signup">
                                 <Button size="lg" className="text-lg px-8 py-6 rounded-full bg-primary hover:bg-primary/90">
                                     ابدأ مجاناً
                                 </Button>

@@ -16,6 +16,9 @@ export default function LoginPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const next = searchParams.get('next') || '/create-store';
+    const initialView = searchParams.get('view') === 'signup' ? 'signup' : 'login';
+    const [view, setView] = useState<'login' | 'signup'>(initialView);
+
     const supabase = createBrowserClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -42,7 +45,8 @@ export default function LoginPage() {
         }
     };
 
-    const handleSignUp = async () => {
+    const handleSignUp = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
         setLoading(true);
         setError(null);
 
@@ -73,12 +77,16 @@ export default function LoginPage() {
                 className="w-full max-w-md space-y-8"
             >
                 <div className="text-center space-y-2">
-                    <h1 className="text-3xl font-bold tracking-tight">تسجيل الدخول</h1>
-                    <p className="text-slate-400">سجل دخولك لإنشاء وإدارة متاجرك</p>
+                    <h1 className="text-3xl font-bold tracking-tight">
+                        {view === 'signup' ? 'إنشاء حساب جديد' : 'تسجيل الدخول'}
+                    </h1>
+                    <p className="text-slate-400">
+                        {view === 'signup' ? 'أنشئ حسابك للبدء في بناء متجرك' : 'سجل دخولك لإنشاء وإدارة متاجرك'}
+                    </p>
                 </div>
 
                 <div className="bg-white/5 border border-white/10 rounded-2xl p-8 shadow-lg">
-                    <form onSubmit={handleLogin} className="space-y-6">
+                    <form onSubmit={view === 'signup' ? handleSignUp : handleLogin} className="space-y-6">
                         {error && (
                             <div className="p-3 text-sm text-red-500 bg-red-500/10 rounded-lg text-center">
                                 {error}
@@ -115,12 +123,28 @@ export default function LoginPage() {
                             </div>
                         </div>
 
-                        <div className="flex gap-4">
-                            <Button type="submit" className="flex-1 h-11" disabled={loading}>
-                                {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "تسجيل الدخول"}
+                        <div className="flex flex-col gap-4">
+                            <Button type="submit" className="w-full h-11" disabled={loading}>
+                                {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : (view === 'signup' ? "إنشاء حساب" : "تسجيل الدخول")}
                             </Button>
-                            <Button type="button" variant="outline" className="flex-1 h-11 border-white/10 hover:bg-white/5" onClick={handleSignUp} disabled={loading}>
-                                إنشاء حساب جديد
+
+                            <div className="relative">
+                                <div className="absolute inset-0 flex items-center">
+                                    <span className="w-full border-t border-white/10" />
+                                </div>
+                                <div className="relative flex justify-center text-xs uppercase">
+                                    <span className="bg-slate-950 px-2 text-slate-500">أو</span>
+                                </div>
+                            </div>
+
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                className="w-full h-11 hover:bg-white/5"
+                                onClick={() => setView(view === 'signup' ? 'login' : 'signup')}
+                                disabled={loading}
+                            >
+                                {view === 'signup' ? "لديك حساب بالفعل؟ تسجيل الدخول" : "ليس لديك حساب؟ إنشاء حساب جديد"}
                             </Button>
                         </div>
                     </form>
