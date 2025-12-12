@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createBrowserClient } from "@supabase/auth-helpers-nextjs";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Lock, Mail, Loader2 } from "lucide-react";
@@ -16,7 +16,10 @@ export default function LoginPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const next = searchParams.get('next') || '/create-store';
-    const supabase = createClientComponentClient();
+    const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();

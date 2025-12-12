@@ -30,8 +30,8 @@ export default async function middleware(req: NextRequest) {
         if (parts.length > 1 && parts[0] !== 'localhost') {
             currentHost = parts[0];
         } else {
-            // Default store for localhost:3000
-            currentHost = "demo";
+            // Default to 'www' for localhost:3000 to show landing page
+            currentHost = "www";
         }
     } else {
         // Production logic
