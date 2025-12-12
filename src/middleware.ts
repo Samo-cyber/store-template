@@ -17,6 +17,31 @@ export const config = {
 export default async function middleware(req: NextRequest) {
     const url = req.nextUrl;
     const hostname = req.headers.get("host") || process.env.NEXT_PUBLIC_ROOT_DOMAIN || "localhost";
+    const userSession = req.cookies.get('user_session');
+    const sbToken = req.cookies.get('sb-access-token') || req.cookies.get('sb-refresh-token'); // Check for Supabase token
+
+    // Protected Routes Logic
+    const isProtected = url.pathname.startsWith('/create-store') ||
+        (url.pathname.includes('/admin') && !url.pathname.includes('/login'));
+
+    // Super Admin Route
+    const isSuperAdminRoute = url.pathname.startsWith('/platform-admin');
+
+    if (isSuperAdminRoute) {
+        // Super Admin must have Supabase Token (handled by Supabase Auth)
+        // We can let the client-side check handle the specific role, but basic auth check here is good
+        // For now, we rely on the layout.tsx check for role, but we could check token existence here
+    }
+
+    if (isProtected) {
+        // Check for Custom User Session
+        if (!userSession) {
+            // Redirect to login
+            const loginUrl = new URL('/login', req.url);
+            loginUrl.searchParams.set('next', url.pathname);
+            return NextResponse.redirect(loginUrl);
+        }
+    }
 
     // Get the subdomain
     // If localhost, default to 'demo' (or whatever default store slug you want)
@@ -57,19 +82,10 @@ export default async function middleware(req: NextRequest) {
         } else {
             // e.g. store1.domain.com -> store1
             // domain.com -> www (if not caught by rootDomain check above)
-
             const parts = hostname.split('.');
-            // If we have a rootDomain defined, and we are here, it means hostname != rootDomain
-            // So it must be a subdomain.
-            // But we need to be careful about how we extract it.
-            // If rootDomain is "example.com", and hostname is "store.example.com", subdomain is "store".
-
             if (rootDomain) {
                 currentHost = hostname.replace(`.${rootDomain}`, '');
             } else {
-                // Fallback if env var not set (heuristic)
-                // Assuming domain.com (2 parts) or store.domain.com (3 parts)
-                // This is flaky for vercel.app domains
                 if (parts.length > 2) {
                     currentHost = parts[0];
                 } else {
@@ -80,12 +96,6 @@ export default async function middleware(req: NextRequest) {
     }
 
     // Rewrite the URL to /_sites/[site]/...
-    // We use [site] directory to handle tenants
-    // Note: We moved files to src/app/[site]/...
-    // So we rewrite to /[currentHost]/path
-
-    // Prevent infinite redirects/rewrites if we are already on the rewritten path (unlikely with this matcher)
-
     url.pathname = `/${currentHost}${url.pathname}`;
 
     return NextResponse.rewrite(url);

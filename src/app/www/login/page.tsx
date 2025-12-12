@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { createBrowserClient } from "@supabase/ssr";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Lock, Mail, Loader2 } from "lucide-react";
@@ -19,23 +18,21 @@ export default function LoginPage() {
     const initialView = searchParams.get('view') === 'signup' ? 'signup' : 'login';
     const [view, setView] = useState<'login' | 'signup'>(initialView);
 
-    const supabase = createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
-
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
 
         try {
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email,
-                password,
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password }),
             });
 
-            if (error) throw error;
+            const data = await res.json();
+
+            if (!res.ok) throw new Error(data.error);
 
             window.location.href = next;
         } catch (err: any) {
@@ -51,17 +48,18 @@ export default function LoginPage() {
         setError(null);
 
         try {
-            const { data, error } = await supabase.auth.signUp({
-                email,
-                password,
-                options: {
-                    emailRedirectTo: `${window.location.origin}/auth/callback`,
-                },
+            const res = await fetch('/api/auth/signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password }),
             });
 
-            if (error) throw error;
+            const data = await res.json();
 
-            alert("تم إنشاء الحساب بنجاح! يرجى التحقق من بريدك الإلكتروني لتفعيل الحساب.");
+            if (!res.ok) throw new Error(data.error);
+
+            // Auto login after signup
+            window.location.href = next;
         } catch (err: any) {
             setError(err.message || "حدث خطأ أثناء إنشاء الحساب");
         } finally {

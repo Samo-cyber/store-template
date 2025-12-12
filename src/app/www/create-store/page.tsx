@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { createBrowserClient } from "@supabase/ssr";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Loader2 } from "lucide-react";
@@ -12,68 +11,32 @@ export default function CreateStorePage() {
     const [slug, setSlug] = useState("");
     const [loading, setLoading] = useState(false);
     const router = useRouter();
-    const supabase = createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
 
     useEffect(() => {
-        const checkAuth = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (!session) {
-                router.push('/login?next=/create-store');
-            }
-        };
-        checkAuth();
-    }, [supabase, router]);
+        // Check for session cookie
+        const hasSession = document.cookie.includes('user_session');
+        if (!hasSession) {
+            router.push('/login?next=/create-store');
+        }
+    }, [router]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
 
         try {
-            // Check if user is logged in
-            const { data: { session } } = await supabase.auth.getSession();
+            const res = await fetch('/api/stores/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, slug }),
+            });
 
-            if (!session) {
-                // Redirect to login if not authenticated
-                // In a real app, we might want to capture the intent and redirect back
-                router.push('/login?next=/create-store');
+            const data = await res.json();
+
+            if (!res.ok) {
+                alert(data.error || "حدث خطأ أثناء إنشاء المتجر");
                 return;
             }
-
-            // Create store
-            const { data, error } = await supabase
-                .from('stores')
-                .insert([
-                    {
-                        name,
-                        slug,
-                        owner_id: session.user.id
-                    }
-                ])
-                .select()
-                .single();
-
-            if (error) {
-                if (error.code === '23505') { // Unique violation for slug
-                    alert("هذا الرابط مستخدم بالفعل، يرجى اختيار رابط آخر");
-                } else {
-                    alert("حدث خطأ أثناء إنشاء المتجر: " + error.message);
-                }
-                return;
-            }
-
-            // Update user profile to store_owner
-            await supabase
-                .from('users')
-                .update({ role: 'store_owner' })
-                .eq('id', session.user.id);
-
-            // Redirect to the new store's admin dashboard
-            // We need to redirect to the subdomain
-            // e.g. slug.domain.com/admin
-            // For localhost, we might redirect to slug.localhost:3000/admin
 
             // Redirect to the new store's admin dashboard
             const protocol = window.location.protocol;

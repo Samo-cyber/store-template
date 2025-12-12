@@ -1,7 +1,8 @@
--- Create users table
+-- Create users table (Custom Auth)
 CREATE TABLE IF NOT EXISTS public.users (
-  id uuid REFERENCES auth.users ON DELETE CASCADE PRIMARY KEY,
-  email text,
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  email text UNIQUE NOT NULL,
+  password_hash text NOT NULL,
   role text DEFAULT 'user' CHECK (role IN ('super_admin', 'store_owner', 'user')),
   created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
@@ -16,30 +17,15 @@ CREATE POLICY "Public users are viewable by everyone"
 
 CREATE POLICY "Users can insert their own profile"
   ON public.users FOR INSERT
-  WITH CHECK ( auth.uid() = id );
+  WITH CHECK ( true ); -- Allow public registration
 
 CREATE POLICY "Users can update own profile"
   ON public.users FOR UPDATE
-  USING ( auth.uid() = id );
+  USING ( true ); -- Simplified for custom auth, logic handled in API
 
--- Trigger to handle new user creation
-CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS trigger
-LANGUAGE plpgsql
-SECURITY DEFINER SET search_path = public
-AS $$
-BEGIN
-  INSERT INTO public.users (id, email, role)
-  VALUES (new.id, new.email, 'user');
-  RETURN new;
-END;
-$$;
-
--- Trigger execution
+-- Trigger to handle new user creation (REMOVED - Custom Auth handles this)
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
-CREATE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
+DROP FUNCTION IF EXISTS public.handle_new_user();
 
 -- RPC: Get Platform Stats (Super Admin)
 CREATE OR REPLACE FUNCTION get_platform_stats()
