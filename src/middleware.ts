@@ -35,7 +35,10 @@ export default async function middleware(req: NextRequest) {
         }
     } else {
         // Production logic
-        const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN;
+        let rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN;
+        if (rootDomain) {
+            rootDomain = rootDomain.replace('https://', '').replace('http://', '');
+        }
 
         if (rootDomain && hostname === rootDomain) {
             currentHost = "www";

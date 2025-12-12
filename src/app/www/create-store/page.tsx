@@ -61,7 +61,10 @@ export default function CreateStorePage() {
 
             // Redirect to the new store's admin dashboard
             const protocol = window.location.protocol;
-            const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || window.location.host.replace('www.', '');
+            let rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || window.location.host.replace('www.', '');
+            if (rootDomain) {
+                rootDomain = rootDomain.replace('https://', '').replace('http://', '');
+            }
 
             // In production, we redirect to the subdomain
             window.location.href = `${protocol}//${slug}.${rootDomain}/admin`;
