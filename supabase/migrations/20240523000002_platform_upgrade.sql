@@ -1,5 +1,5 @@
--- Create profiles table
-CREATE TABLE IF NOT EXISTS public.profiles (
+-- Create users table
+CREATE TABLE IF NOT EXISTS public.users (
   id uuid REFERENCES auth.users ON DELETE CASCADE PRIMARY KEY,
   email text,
   role text DEFAULT 'user' CHECK (role IN ('super_admin', 'store_owner', 'user')),
@@ -7,19 +7,19 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 );
 
 -- Enable RLS
-ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 
--- Policies for profiles
-CREATE POLICY "Public profiles are viewable by everyone"
-  ON public.profiles FOR SELECT
+-- Policies for users
+CREATE POLICY "Public users are viewable by everyone"
+  ON public.users FOR SELECT
   USING ( true );
 
 CREATE POLICY "Users can insert their own profile"
-  ON public.profiles FOR INSERT
+  ON public.users FOR INSERT
   WITH CHECK ( auth.uid() = id );
 
 CREATE POLICY "Users can update own profile"
-  ON public.profiles FOR UPDATE
+  ON public.users FOR UPDATE
   USING ( auth.uid() = id );
 
 -- Trigger to handle new user creation
@@ -29,7 +29,7 @@ LANGUAGE plpgsql
 SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
-  INSERT INTO public.profiles (id, email, role)
+  INSERT INTO public.users (id, email, role)
   VALUES (new.id, new.email, 'user');
   RETURN new;
 END;
@@ -56,7 +56,7 @@ BEGIN
   SELECT COUNT(*) INTO v_total_stores FROM stores;
 
   -- Total Users
-  SELECT COUNT(*) INTO v_total_users FROM profiles;
+  SELECT COUNT(*) INTO v_total_users FROM users;
 
   -- Total Platform Revenue (sum of all orders)
   SELECT COALESCE(SUM(total_amount), 0) INTO v_total_revenue FROM orders WHERE status != 'cancelled';
@@ -94,7 +94,7 @@ BEGIN
     COUNT(o.id)::integer as total_orders,
     s.created_at
   FROM stores s
-  LEFT JOIN profiles p ON s.owner_id = p.id
+  LEFT JOIN users p ON s.owner_id = p.id
   LEFT JOIN orders o ON s.id = o.store_id
   GROUP BY s.id, s.name, s.slug, p.email, s.created_at
   ORDER BY total_revenue DESC;

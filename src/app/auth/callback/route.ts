@@ -32,9 +32,9 @@ export async function GET(request: Request) {
         if (!error && session) {
             // Smart Redirect Logic
             try {
-                // 1. Fetch User Profile
+                // 1. Fetch User Profile from users table
                 const { data: profile } = await supabase
-                    .from('profiles')
+                    .from('users')
                     .select('role')
                     .eq('id', session.user.id)
                     .single()

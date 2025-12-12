@@ -50,7 +50,7 @@ export default function PlatformAdminLayout({
 
             // Verify Super Admin Role
             const { data: profile } = await supabase
-                .from('profiles')
+                .from('users')
                 .select('role')
                 .eq('id', session.user.id)
                 .single();

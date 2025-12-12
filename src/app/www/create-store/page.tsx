@@ -66,7 +66,7 @@ export default function CreateStorePage() {
 
             // Update user profile to store_owner
             await supabase
-                .from('profiles')
+                .from('users')
                 .update({ role: 'store_owner' })
                 .eq('id', session.user.id);
 
