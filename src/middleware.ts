@@ -41,6 +41,18 @@ export default async function middleware(req: NextRequest) {
         }
 
         if (rootDomain && hostname === rootDomain) {
+            // Special case for testing on Vercel without custom domain
+            // Allow accessing stores via domain.com/store/slug
+            if (url.pathname.startsWith('/store/')) {
+                // /store/store1/dashboard -> /store1/dashboard
+                const pathParts = url.pathname.split('/');
+                const storeSlug = pathParts[2]; // store1
+                const newPath = pathParts.slice(3).join('/');
+
+                url.pathname = `/${storeSlug}/${newPath}`;
+                return NextResponse.rewrite(url);
+            }
+
             currentHost = "www";
         } else {
             // e.g. store1.domain.com -> store1

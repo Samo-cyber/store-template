@@ -67,7 +67,12 @@ export default function CreateStorePage() {
             }
 
             // In production, we redirect to the subdomain
-            window.location.href = `${protocol}//${slug}.${rootDomain}/admin`;
+            if (rootDomain?.includes('vercel.app')) {
+                // Fallback for Vercel free domains: use path-based routing
+                window.location.href = `${protocol}//${rootDomain}/store/${slug}/admin`;
+            } else {
+                window.location.href = `${protocol}//${slug}.${rootDomain}/admin`;
+            }
 
         } catch (error: any) {
             console.error("Error creating store:", error);
