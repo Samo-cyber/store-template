@@ -59,17 +59,12 @@ export default function CreateStorePage() {
             // e.g. slug.domain.com/admin
             // For localhost, we might redirect to slug.localhost:3000/admin
 
+            // Redirect to the new store's admin dashboard
             const protocol = window.location.protocol;
-            const host = window.location.host;
-            // Use env var for root domain if available, otherwise fallback to current host
-            const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || host.replace('www.', '');
+            const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || window.location.host.replace('www.', '');
 
-            if (host.includes('localhost')) {
-                alert(`تم إنشاء المتجر بنجاح! \nالرابط: http://${slug}.${rootDomain.split(':')[0]}:3000\n(تأكد من إعداد ملف hosts للوصول إليه محلياً)`);
-            } else {
-                // Production redirect
-                window.location.href = `${protocol}//${slug}.${rootDomain}/admin`;
-            }
+            // In production, we redirect to the subdomain
+            window.location.href = `${protocol}//${slug}.${rootDomain}/admin`;
 
         } catch (error: any) {
             console.error("Error creating store:", error);
