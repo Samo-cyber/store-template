@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ProductForm } from "@/components/admin/ProductForm";
-import { createBrowserClient } from "@supabase/auth-helpers-nextjs";
+import { createBrowserClient } from "@supabase/ssr";
 import { Product } from "@/lib/products";
 import { Loader2 } from "lucide-react";
 import { useParams } from "next/navigation";

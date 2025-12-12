@@ -6,7 +6,7 @@ export interface FreeShippingSettings {
     endDate: string | null; // ISO string
 }
 
-import { createBrowserClient } from "@supabase/auth-helpers-nextjs";
+import { createBrowserClient } from "@supabase/ssr";
 
 // Helper to get a working client
 const getClient = () => {

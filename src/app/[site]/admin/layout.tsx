@@ -3,7 +3,7 @@
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { createBrowserClient } from "@supabase/auth-helpers-nextjs";
+import { createBrowserClient } from "@supabase/ssr";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { COOKIE_NAME } from "@/lib/auth-config";

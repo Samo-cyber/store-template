@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createBrowserClient } from "@supabase/auth-helpers-nextjs";
+import { createBrowserClient } from "@supabase/ssr";
 import { Product } from "@/lib/products";
 import { Button } from "@/components/ui/Button";
 import { Plus, Pencil, Trash2, Loader2 } from "lucide-react";
