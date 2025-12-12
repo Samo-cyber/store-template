@@ -61,18 +61,14 @@ export default function CreateStorePage() {
 
             const protocol = window.location.protocol;
             const host = window.location.host;
-            const domain = host.includes('localhost') ? 'localhost:3000' : host.replace('www.', '');
-
-            // If localhost, we can't easily switch subdomain without hosts file
-            // But we can redirect to the same domain with a query param or just show success
+            // Use env var for root domain if available, otherwise fallback to current host
+            const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || host.replace('www.', '');
 
             if (host.includes('localhost')) {
-                alert(`تم إنشاء المتجر بنجاح! \nالرابط: http://${slug}.${domain.split(':')[0]}:3000\n(تأكد من إعداد ملف hosts للوصول إليه محلياً)`);
-                // For demo purposes, maybe just redirect to the store page on the current domain if middleware handles path-based?
-                // But our middleware expects subdomain.
-                // So user MUST setup hosts file for local dev.
+                alert(`تم إنشاء المتجر بنجاح! \nالرابط: http://${slug}.${rootDomain.split(':')[0]}:3000\n(تأكد من إعداد ملف hosts للوصول إليه محلياً)`);
             } else {
-                window.location.href = `${protocol}//${slug}.${domain}/admin`;
+                // Production redirect
+                window.location.href = `${protocol}//${slug}.${rootDomain}/admin`;
             }
 
         } catch (error: any) {

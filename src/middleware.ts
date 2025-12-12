@@ -35,14 +35,32 @@ export default async function middleware(req: NextRequest) {
         }
     } else {
         // Production logic
-        // e.g. store1.domain.com -> store1
-        // domain.com -> www
-        const parts = hostname.split('.');
-        // Assuming domain.com (2 parts) or store.domain.com (3 parts)
-        if (parts.length > 2) {
-            currentHost = parts[0];
+        const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN;
+
+        if (rootDomain && hostname === rootDomain) {
+            currentHost = "www";
         } else {
-            currentHost = "www"; // Handle root domain
+            // e.g. store1.domain.com -> store1
+            // domain.com -> www (if not caught by rootDomain check above)
+
+            const parts = hostname.split('.');
+            // If we have a rootDomain defined, and we are here, it means hostname != rootDomain
+            // So it must be a subdomain.
+            // But we need to be careful about how we extract it.
+            // If rootDomain is "example.com", and hostname is "store.example.com", subdomain is "store".
+
+            if (rootDomain) {
+                currentHost = hostname.replace(`.${rootDomain}`, '');
+            } else {
+                // Fallback if env var not set (heuristic)
+                // Assuming domain.com (2 parts) or store.domain.com (3 parts)
+                // This is flaky for vercel.app domains
+                if (parts.length > 2) {
+                    currentHost = parts[0];
+                } else {
+                    currentHost = "www";
+                }
+            }
         }
     }
 

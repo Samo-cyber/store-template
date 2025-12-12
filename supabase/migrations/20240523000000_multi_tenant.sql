@@ -1,5 +1,5 @@
 -- Create stores table
-create table public.stores (
+create table if not exists public.stores (
   id uuid default uuid_generate_v4() primary key,
   name text not null,
   slug text not null unique,
@@ -12,27 +12,53 @@ create table public.stores (
 alter table public.stores enable row level security;
 
 -- Policies for stores
+-- Policies for stores
+drop policy if exists "Stores are viewable by everyone" on public.stores;
 create policy "Stores are viewable by everyone"
   on public.stores for select
   using ( true );
 
+drop policy if exists "Users can create their own stores" on public.stores;
 create policy "Users can create their own stores"
   on public.stores for insert
   with check ( auth.uid() = owner_id );
 
+drop policy if exists "Users can update their own stores" on public.stores;
 create policy "Users can update their own stores"
   on public.stores for update
   using ( auth.uid() = owner_id );
 
 -- Add store_id to products
-alter table public.products add column store_id uuid references public.stores(id);
+-- Add store_id to products
+do $$
+begin
+  if not exists (select 1 from information_schema.columns where table_name = 'products' and column_name = 'store_id') then
+    alter table public.products add column store_id uuid references public.stores(id);
+  end if;
+end $$;
 
 -- Add store_id and shipping_cost to orders
-alter table public.orders add column store_id uuid references public.stores(id);
-alter table public.orders add column shipping_cost numeric default 0;
-alter table public.orders alter column customer_email drop not null;
+do $$
+begin
+  if not exists (select 1 from information_schema.columns where table_name = 'orders' and column_name = 'store_id') then
+    alter table public.orders add column store_id uuid references public.stores(id);
+  end if;
+
+  if not exists (select 1 from information_schema.columns where table_name = 'orders' and column_name = 'shipping_cost') then
+    alter table public.orders add column shipping_cost numeric default 0;
+  end if;
+
+  -- Handle customer_email
+  if not exists (select 1 from information_schema.columns where table_name = 'orders' and column_name = 'customer_email') then
+    alter table public.orders add column customer_email text;
+  else
+    alter table public.orders alter column customer_email drop not null;
+  end if;
+end $$;
 
 -- Update RLS for Products to check store ownership for write operations
+-- Update RLS for Products to check store ownership for write operations
+drop policy if exists "Store owners can insert products" on public.products;
 create policy "Store owners can insert products"
   on public.products for insert
   with check (
@@ -42,6 +68,7 @@ create policy "Store owners can insert products"
     )
   );
 
+drop policy if exists "Store owners can update products" on public.products;
 create policy "Store owners can update products"
   on public.products for update
   using (
@@ -51,6 +78,7 @@ create policy "Store owners can update products"
     )
   );
 
+drop policy if exists "Store owners can delete products" on public.products;
 create policy "Store owners can delete products"
   on public.products for delete
   using (
