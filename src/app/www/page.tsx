@@ -18,15 +18,27 @@ export default async function LandingPage() {
         }
     );
 
-    const { data: { session } } = await supabase.auth.getSession();
+    const userSession = cookieStore.get('user_session')?.value;
+    let userId: string | null = null;
+
+    if (userSession) {
+        try {
+            const { jwtVerify } = await import('jose');
+            const secret = new TextEncoder().encode(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
+            const { payload } = await jwtVerify(userSession, secret);
+            userId = payload.userId as string;
+        } catch (e) {
+            console.error("Invalid session:", e);
+        }
+    }
 
     // Fetch user's store if logged in
     let userStore = null;
-    if (session) {
+    if (userId) {
         const { data } = await supabase
             .from('stores')
             .select('slug')
-            .eq('owner_id', session.user.id)
+            .eq('owner_id', userId)
             .single();
         userStore = data;
     }
@@ -47,7 +59,7 @@ export default async function LandingPage() {
                     منصة متكاملة لبناء متجرك الإلكتروني بهوية فريدة وأدوات قوية. ابدأ رحلتك في التجارة الإلكترونية اليوم.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    {!session ? (
+                    {!userId ? (
                         <>
                             <Link href="/login?view=signup">
                                 <Button size="lg" className="text-lg px-8 py-6 rounded-full bg-primary hover:bg-primary/90">
