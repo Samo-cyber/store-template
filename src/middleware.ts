@@ -16,14 +16,14 @@ export const config = {
 
 export default async function middleware(req: NextRequest) {
     const url = req.nextUrl;
-    const hostname = req.headers.get("host") || "demo.localhost";
+    const hostname = req.headers.get("host") || process.env.NEXT_PUBLIC_ROOT_DOMAIN || "localhost";
 
     // Get the subdomain
     // If localhost, default to 'demo' (or whatever default store slug you want)
     // In production, extract subdomain from hostname
     let currentHost = "demo";
 
-    if (hostname.includes("localhost")) {
+    if (process.env.NODE_ENV === 'development' && hostname.includes("localhost")) {
         // For local development, you can use subdomains if you edit /etc/hosts
         // e.g. store1.localhost
         const parts = hostname.split('.');
