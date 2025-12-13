@@ -30,6 +30,8 @@ export function ProductForm({ initialData, isEdit = false }: ProductFormProps) {
         )
         : null);
 
+    const [storeId, setStoreId] = useState<string | null>(null);
+
     const [formData, setFormData] = useState({
         title: initialData?.title || "",
         price: initialData?.price || 0,
@@ -38,6 +40,23 @@ export function ProductForm({ initialData, isEdit = false }: ProductFormProps) {
         images: initialData?.images || (initialData?.image_url ? [initialData.image_url] : []),
         description: initialData?.description || "",
         stock: initialData?.stock || 0,
+    });
+
+    // Fetch store ID on mount
+    useState(() => {
+        const fetchStoreId = async () => {
+            if (!supabase) return;
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                const { data: store } = await supabase
+                    .from('stores')
+                    .select('id')
+                    .eq('owner_id', user.id)
+                    .single();
+                if (store) setStoreId(store.id);
+            }
+        };
+        fetchStoreId();
     });
 
     const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -151,8 +170,15 @@ export function ProductForm({ initialData, isEdit = false }: ProductFormProps) {
             const dataToSubmit = {
                 ...formData,
                 // Ensure image_url is set to the first image for backward compatibility
-                image_url: formData.images.length > 0 ? formData.images[0] : formData.image_url
+                image_url: formData.images.length > 0 ? formData.images[0] : formData.image_url,
+                store_id: storeId
             };
+
+            if (!storeId) {
+                alert("لم يتم العثور على المتجر. يرجى إعادة تسجيل الدخول.");
+                setLoading(false);
+                return;
+            }
 
             if (isEdit && initialData) {
                 const { error } = await supabase

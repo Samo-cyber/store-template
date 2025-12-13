@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Package, ShoppingCart, LogOut, Truck, Menu, X } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingCart, LogOut, Truck, Menu, X, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { createBrowserClient } from "@supabase/ssr";
@@ -115,7 +115,16 @@ export function AdminSidebar() {
                         </Link>
                     ))}
                 </nav>
-                <div className="p-4 border-t mt-auto">
+                <div className="p-4 border-t mt-auto space-y-2">
+                    <Link href={pathname?.match(/^\/store\/[^/]+/)?.[0] || "/"} target="_blank">
+                        <Button
+                            variant="outline"
+                            className="w-full justify-start gap-3"
+                        >
+                            <ExternalLink className="h-5 w-5" />
+                            زيارة المتجر
+                        </Button>
+                    </Link>
                     <Button
                         variant="ghost"
                         className="w-full justify-start gap-3 text-red-500 hover:text-red-600 hover:bg-red-500/10"
