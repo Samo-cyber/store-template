@@ -16,7 +16,88 @@ export default function AdminProductsPage() {
     const pathname = usePathname();
     const basePath = pathname?.match(/^\/store\/[^/]+/)?.[0] || "";
 
-    // ... (rest of the component)
+    // Safely initialize Supabase client
+    const [supabase] = useState(() => process.env.NEXT_PUBLIC_SUPABASE_URL
+        ? createBrowserClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            { cookieOptions: { name: COOKIE_NAME } }
+        )
+        : null);
+
+    useEffect(() => {
+        loadProducts();
+    }, []);
+
+    async function loadProducts() {
+        setLoading(true);
+
+        if (!supabase) {
+            // Use the public getProducts which handles mock data
+            const { getProducts } = await import("@/lib/products");
+            const data = await getProducts();
+            setProducts(data);
+            setLoading(false);
+            return;
+        }
+
+        // 1. Get Current User
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+            setLoading(false);
+            return;
+        }
+
+        // 2. Get User's Store
+        const { data: store } = await supabase
+            .from('stores')
+            .select('id')
+            .eq('owner_id', user.id)
+            .single();
+
+        if (!store) {
+            setLoading(false);
+            return;
+        }
+
+        // 3. Fetch Products for this Store
+        const { data } = await supabase
+            .from('products')
+            .select('*')
+            .eq('store_id', store.id)
+            .order('created_at', { ascending: false });
+
+        if (data) setProducts(data as Product[]);
+        setLoading(false);
+    }
+
+    async function handleDelete(id: string) {
+        if (!confirm("هل أنت متأكد من حذف هذا المنتج؟")) return;
+
+        if (!supabase) {
+            alert("لا يمكن حذف المنتجات في الوضع التجريبي");
+            return;
+        }
+
+        const { error } = await supabase
+            .from('products')
+            .delete()
+            .eq('id', id);
+
+        if (!error) {
+            loadProducts();
+        } else {
+            alert("حدث خطأ أثناء الحذف");
+        }
+    }
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-full">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-8">
