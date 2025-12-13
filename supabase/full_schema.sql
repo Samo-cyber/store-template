@@ -9,6 +9,7 @@ create table if not exists public.stores (
   slug text not null unique,
   owner_id uuid references public.users(id),
   settings jsonb default '{}'::jsonb,
+  description text,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
