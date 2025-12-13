@@ -9,12 +9,12 @@ import { createServerClient } from '@supabase/ssr';
 import { LayoutDashboard } from "lucide-react";
 import Link from "next/link";
 
-interface ModernTemplateProps {
+interface StoreTemplateProps {
     storeId: string;
     ownerId?: string;
 }
 
-export default async function ModernTemplate({ storeId, ownerId }: ModernTemplateProps) {
+export default async function StoreTemplate({ storeId, ownerId }: StoreTemplateProps) {
     const featuredProducts = await getFeaturedProducts(4, storeId);
     const bestSellers = await getBestSellers(4, storeId);
     const newArrivals = await getNewArrivals(4, storeId);
