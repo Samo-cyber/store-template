@@ -27,13 +27,17 @@ export default async function LandingPage() {
             const { jwtVerify } = await import('jose');
             const secret = new TextEncoder().encode(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
             const { payload } = await jwtVerify(userSession, secret);
-            user = {
-                id: payload.userId as string,
-                email: payload.email as string,
-                role: payload.role as string
-            };
+
+            if (payload) {
+                user = {
+                    id: payload.userId as string,
+                    email: payload.email as string,
+                    role: payload.role as string
+                };
+            }
         } catch (e) {
-            console.error("Invalid session:", e);
+            console.error("Session verification failed:", e);
+            // Optionally: Redirect to logout or clear cookie if possible (not in render)
         }
     }
 

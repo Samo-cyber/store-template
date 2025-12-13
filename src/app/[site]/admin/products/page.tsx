@@ -41,8 +41,14 @@ export default function AdminProductsPage() {
             return;
         }
 
-        // 1. Get Current User
-        const { data: { user } } = await supabase.auth.getUser();
+        // 1. Get Current User via Custom Auth
+        const res = await fetch('/api/auth/me');
+        if (!res.ok) {
+            setLoading(false);
+            return;
+        }
+        const user = await res.json();
+
         if (!user) {
             setLoading(false);
             return;

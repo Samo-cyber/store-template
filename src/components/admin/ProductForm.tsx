@@ -31,6 +31,7 @@ export function ProductForm({ initialData, isEdit = false }: ProductFormProps) {
         : null);
 
     const [storeId, setStoreId] = useState<string | null>(null);
+    const [storeSlug, setStoreSlug] = useState<string | null>(null);
 
     const [formData, setFormData] = useState({
         title: initialData?.title || "",
@@ -55,10 +56,15 @@ export function ProductForm({ initialData, isEdit = false }: ProductFormProps) {
                     // 2. Get Store for this User
                     const { data: store } = await supabase
                         .from('stores')
-                        .select('id')
+                        .select('id, slug')
                         .eq('owner_id', user.id)
                         .single();
-                    if (store) setStoreId(store.id);
+                    if (store) {
+                        setStoreId(store.id);
+                        // Store slug in state or ref if needed, but we can just use it in the redirect if we store it.
+                        // Let's add a state for slug.
+                        setStoreSlug(store.slug);
+                    }
                 }
             } catch (error) {
                 console.error("Error fetching store:", error);
@@ -202,7 +208,11 @@ export function ProductForm({ initialData, isEdit = false }: ProductFormProps) {
                 throw new Error(errorData.error || 'Failed to save product');
             }
 
-            router.push("/admin/products");
+            if (storeSlug) {
+                router.push(`/store/${storeSlug}/admin/products`);
+            } else {
+                router.push("/admin/products");
+            }
             router.refresh();
         } catch (error: any) {
             console.error('Error saving product:', error);
