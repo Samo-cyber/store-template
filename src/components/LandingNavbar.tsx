@@ -115,7 +115,7 @@ export default function LandingNavbar({ user, storeSlug }: LandingNavbarProps) {
                                     >
                                         <div className="p-1">
                                             <Link
-                                                href={storeSlug ? `/store/${storeSlug}/admin` : '/create-store'}
+                                                href={user.role === 'super_admin' ? '/admin' : (storeSlug ? `/store/${storeSlug}/admin` : '/create-store')}
                                                 className="flex items-center gap-2 px-4 py-2 text-sm text-slate-300 hover:bg-white/5 hover:text-white rounded-lg transition-colors"
                                             >
                                                 <LayoutDashboard className="w-4 h-4" />
@@ -179,7 +179,7 @@ export default function LandingNavbar({ user, storeSlug }: LandingNavbarProps) {
                                             </div>
                                             <span>{user.email}</span>
                                         </div>
-                                        <Link href={storeSlug ? `/store/${storeSlug}/admin` : '/create-store'}>
+                                        <Link href={user.role === 'super_admin' ? '/admin' : (storeSlug ? `/store/${storeSlug}/admin` : '/create-store')}>
                                             <Button className="w-full justify-start gap-2" variant="outline">
                                                 <LayoutDashboard className="w-4 h-4" />
                                                 لوحة التحكم
