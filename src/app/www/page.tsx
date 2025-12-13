@@ -131,6 +131,97 @@ export default async function LandingPage() {
                 </div>
             </section>
 
+            {/* Pricing Section */}
+            <section id="pricing" className="py-24 relative">
+                <div className="container mx-auto px-4">
+                    <div className="text-center mb-16">
+                        <h2 className="text-3xl md:text-4xl font-bold mb-4">باقات تناسب الجميع</h2>
+                        <p className="text-slate-400 max-w-2xl mx-auto">اختر الباقة التي تناسب حجم تجارتك وابدأ رحلة النجاح.</p>
+                    </div>
+
+                    <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                        {/* Basic Plan */}
+                        <div className="p-8 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 transition-all relative">
+                            <h3 className="text-xl font-bold mb-2">البداية</h3>
+                            <div className="text-4xl font-bold mb-6">مجاناً<span className="text-lg text-slate-500 font-normal">/للأبد</span></div>
+                            <ul className="space-y-4 mb-8 text-slate-300">
+                                <li className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5 text-green-500" /> 50 منتج</li>
+                                <li className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5 text-green-500" /> عمولة 2%</li>
+                                <li className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5 text-green-500" /> دعم فني عبر البريد</li>
+                            </ul>
+                            <Button className="w-full bg-white/10 hover:bg-white/20 text-white">اشترك الآن</Button>
+                        </div>
+
+                        {/* Pro Plan */}
+                        <div className="p-8 rounded-2xl bg-gradient-to-b from-purple-900/20 to-slate-900 border border-purple-500/50 relative transform md:-translate-y-4">
+                            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-purple-600 text-white px-4 py-1 rounded-full text-sm font-bold">الأكثر طلباً</div>
+                            <h3 className="text-xl font-bold mb-2 text-purple-400">احترافي</h3>
+                            <div className="text-4xl font-bold mb-6">99<span className="text-lg text-slate-500 font-normal">/شهر</span></div>
+                            <ul className="space-y-4 mb-8 text-slate-300">
+                                <li className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5 text-purple-500" /> منتجات غير محدودة</li>
+                                <li className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5 text-purple-500" /> عمولة 0%</li>
+                                <li className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5 text-purple-500" /> دومين خاص مجاني</li>
+                                <li className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5 text-purple-500" /> دعم فني 24/7</li>
+                            </ul>
+                            <Button className="w-full bg-purple-600 hover:bg-purple-500 text-white">اشترك الآن</Button>
+                        </div>
+
+                        {/* Enterprise Plan */}
+                        <div className="p-8 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 transition-all">
+                            <h3 className="text-xl font-bold mb-2">شركات</h3>
+                            <div className="text-4xl font-bold mb-6">299<span className="text-lg text-slate-500 font-normal">/شهر</span></div>
+                            <ul className="space-y-4 mb-8 text-slate-300">
+                                <li className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5 text-green-500" /> كل مميزات الاحترافي</li>
+                                <li className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5 text-green-500" /> مدير حساب خاص</li>
+                                <li className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5 text-green-500" /> تخصيص كامل للواجهة</li>
+                            </ul>
+                            <Button className="w-full bg-white/10 hover:bg-white/20 text-white">تواصل معنا</Button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* About Section */}
+            <section id="about" className="py-24 bg-slate-900/50 border-y border-white/5">
+                <div className="container mx-auto px-4">
+                    <div className="flex flex-col md:flex-row items-center gap-12 max-w-6xl mx-auto">
+                        <div className="flex-1 space-y-6">
+                            <h2 className="text-3xl md:text-4xl font-bold">عن منصة برستيج</h2>
+                            <p className="text-xl text-slate-400 leading-relaxed">
+                                نحن نؤمن بأن التجارة الإلكترونية يجب أن تكون متاحة للجميع. لذلك قمنا ببناء منصة تجمع بين السهولة والقوة، لتمكين التجار في الشرق الأوسط من الوصول إلى عملائهم وتقديم تجربة تسوق استثنائية.
+                            </p>
+                            <div className="grid grid-cols-2 gap-6 pt-4">
+                                <div>
+                                    <div className="text-3xl font-bold text-white mb-2">+1000</div>
+                                    <div className="text-slate-500">متجر نشط</div>
+                                </div>
+                                <div>
+                                    <div className="text-3xl font-bold text-white mb-2">+50M</div>
+                                    <div className="text-slate-500">مبيعات شهرية</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex-1 relative">
+                            <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 to-blue-600/20 rounded-3xl blur-3xl" />
+                            <div className="relative bg-slate-950 border border-white/10 rounded-3xl p-8 shadow-2xl">
+                                <div className="flex items-center gap-4 mb-6">
+                                    <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center">
+                                        <Store className="w-6 h-6 text-purple-400" />
+                                    </div>
+                                    <div>
+                                        <div className="font-bold">رؤيتنا</div>
+                                        <div className="text-sm text-slate-400">تمكين التجارة الرقمية</div>
+                                    </div>
+                                </div>
+                                <p className="text-slate-300 leading-relaxed">
+                                    نسعى لأن نكون الشريك الأول لكل تاجر طموح يبحث عن التميز والنجاح في عالم التجارة الإلكترونية المتسارع.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             {/* Featured Stores Section */}
             <section className="py-24">
                 <div className="container mx-auto px-4">
