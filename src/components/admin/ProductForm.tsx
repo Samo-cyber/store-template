@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createBrowserClient } from "@supabase/ssr";
 import { Button } from "@/components/ui/Button";
@@ -43,7 +43,7 @@ export function ProductForm({ initialData, isEdit = false }: ProductFormProps) {
     });
 
     // Fetch store ID on mount
-    useState(() => {
+    useEffect(() => {
         const fetchStoreId = async () => {
             if (!supabase) return;
             const { data: { user } } = await supabase.auth.getUser();
@@ -57,7 +57,7 @@ export function ProductForm({ initialData, isEdit = false }: ProductFormProps) {
             }
         };
         fetchStoreId();
-    });
+    }, [supabase]);
 
     const handleDragOver = useCallback((e: React.DragEvent) => {
         e.preventDefault();
