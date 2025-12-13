@@ -21,49 +21,80 @@ export async function POST(request: Request) {
             );
         }
 
-        // Fetch user
+        // Fetch user from public.users
         const { data: user } = await supabase
             .from('users')
             .select('*')
             .eq('email', email)
             .single();
 
-        if (!user) {
+        let authenticatedUser = null;
+        let isSuperAdmin = false;
+
+        if (user) {
+            // Verify password for Custom User
+            const isValid = await bcrypt.compare(password, user.password_hash);
+            if (isValid) {
+                authenticatedUser = user;
+            }
+        }
+
+        // If not found or invalid password in custom auth, try Supabase Auth (for Super Admin)
+        if (!authenticatedUser) {
+            const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+                email,
+                password
+            });
+
+            if (!authError && authData.user) {
+                // Check if this user is a super admin (you might want to add a check here)
+                // For now, we assume anyone who can log in via Supabase Auth directly is a super admin
+                // OR we can check a specific email
+                authenticatedUser = {
+                    id: authData.user.id,
+                    email: authData.user.email!,
+                    role: 'super_admin' // Force role for Supabase Auth users
+                };
+                isSuperAdmin = true;
+            }
+        }
+
+        if (!authenticatedUser) {
             return NextResponse.json(
                 { error: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' },
                 { status: 401 }
             );
         }
 
-        // Verify password
-        const isValid = await bcrypt.compare(password, user.password_hash);
-
-        if (!isValid) {
-            return NextResponse.json(
-                { error: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' },
-                { status: 401 }
-            );
+        // Fetch user's store (only if not super admin)
+        let store = null;
+        if (!isSuperAdmin) {
+            const { data: userStore } = await supabase
+                .from('stores')
+                .select('slug')
+                .eq('owner_id', authenticatedUser.id)
+                .single();
+            store = userStore;
         }
-
-        // Fetch user's store
-        const { data: store } = await supabase
-            .from('stores')
-            .select('slug')
-            .eq('owner_id', user.id)
-            .single();
 
         // Create Session Token
         const token = await new SignJWT({
-            userId: user.id,
-            email: user.email,
-            role: user.role
+            userId: authenticatedUser.id,
+            email: authenticatedUser.email,
+            role: authenticatedUser.role
         })
             .setProtectedHeader({ alg: 'HS256' })
             .setExpirationTime('24h')
             .sign(JWT_SECRET);
 
         // Set Cookie
-        const response = NextResponse.json({ success: true, user, store });
+        const response = NextResponse.json({
+            success: true,
+            user: authenticatedUser,
+            store,
+            redirectUrl: isSuperAdmin ? '/admin' : undefined
+        });
+
         // Determine cookie domain
         let rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN;
         if (!rootDomain) {

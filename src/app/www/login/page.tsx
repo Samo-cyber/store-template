@@ -35,6 +35,11 @@ export default function LoginPage() {
             if (!res.ok) throw new Error(data.error);
 
             // Redirect logic
+            if (data.redirectUrl) {
+                window.location.href = data.redirectUrl;
+                return;
+            }
+
             if (next) {
                 window.location.href = next;
                 return;
