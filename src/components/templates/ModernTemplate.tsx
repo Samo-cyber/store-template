@@ -4,6 +4,10 @@ import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import { getFeaturedProducts, getBestSellers, getNewArrivals, getOffers } from "@/lib/products";
 import FreeShippingBanner from "@/components/FreeShippingBanner";
+import { cookies } from 'next/headers';
+import { createServerClient } from '@supabase/ssr';
+import { LayoutDashboard } from "lucide-react";
+import Link from "next/link";
 
 interface ModernTemplateProps {
     storeId: string;
@@ -16,12 +20,7 @@ export default async function ModernTemplate({ storeId, ownerId }: ModernTemplat
     const newArrivals = await getNewArrivals(4, storeId);
     const offers = await getOffers(4, storeId);
 
-    import { cookies } from 'next/headers';
-    import { createServerClient } from '@supabase/ssr';
-    import { LayoutDashboard } from "lucide-react";
-    import Link from "next/link";
 
-    // ... inside component ...
     const cookieStore = cookies();
     const supabase = createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
