@@ -57,13 +57,31 @@ export async function POST(request: Request) {
 
         // Set Cookie
         const response = NextResponse.json({ success: true, user });
-        response.cookies.set('user_session', token, {
+        // Determine cookie domain
+        let rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN;
+        if (!rootDomain) {
+            const host = request.headers.get('host');
+            if (host) {
+                rootDomain = host.replace('www.', '').split(':')[0];
+            }
+        }
+        if (rootDomain) {
+            rootDomain = rootDomain.replace('https://', '').replace('http://', '');
+        }
+
+        const cookieOptions: any = {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
             path: '/',
             maxAge: 60 * 60 * 24 // 24 hours
-        });
+        };
+
+        if (rootDomain && !rootDomain.includes('localhost') && !rootDomain.includes('vercel.app')) {
+            cookieOptions.domain = `.${rootDomain}`;
+        }
+
+        response.cookies.set('user_session', token, cookieOptions);
 
         return response;
 

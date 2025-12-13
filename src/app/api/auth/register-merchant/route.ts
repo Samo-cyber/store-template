@@ -106,13 +106,33 @@ export async function POST(request: Request) {
 
         // 7. Return Success & Set Cookie
         const response = NextResponse.json({ success: true, user: newUser, store: newStore });
-        response.cookies.set('user_session', token, {
+        // Determine cookie domain
+        let rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN;
+        if (!rootDomain) {
+            const host = request.headers.get('host');
+            if (host) {
+                rootDomain = host.replace('www.', '').split(':')[0];
+            }
+        }
+        if (rootDomain) {
+            rootDomain = rootDomain.replace('https://', '').replace('http://', '');
+        }
+
+        const cookieOptions: any = {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
             path: '/',
             maxAge: 60 * 60 * 24 // 24 hours
-        });
+        };
+
+        // Only set domain if it's a custom domain (not localhost and not vercel.app)
+        // For vercel.app, we typically use path-based routing or it's a single domain, so no need for wildcard cookie
+        if (rootDomain && !rootDomain.includes('localhost') && !rootDomain.includes('vercel.app')) {
+            cookieOptions.domain = `.${rootDomain}`;
+        }
+
+        response.cookies.set('user_session', token, cookieOptions);
 
         return response;
 
