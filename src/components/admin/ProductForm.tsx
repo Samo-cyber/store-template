@@ -168,12 +168,6 @@ export function ProductForm({ initialData, isEdit = false }: ProductFormProps) {
         e.preventDefault();
         setLoading(true);
 
-        if (!supabase) {
-            alert("حفظ التعديلات غير متاح في الوضع التجريبي");
-            setLoading(false);
-            return;
-        }
-
         try {
             const dataToSubmit = {
                 ...formData,
@@ -188,24 +182,31 @@ export function ProductForm({ initialData, isEdit = false }: ProductFormProps) {
                 return;
             }
 
+            let response;
             if (isEdit && initialData) {
-                const { error } = await supabase
-                    .from('products')
-                    .update(dataToSubmit)
-                    .eq('id', initialData.id);
-                if (error) throw error;
+                response = await fetch('/api/products', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ...dataToSubmit, id: initialData.id }),
+                });
             } else {
-                const { error } = await supabase
-                    .from('products')
-                    .insert([dataToSubmit]);
-                if (error) throw error;
+                response = await fetch('/api/products', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dataToSubmit),
+                });
+            }
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to save product');
             }
 
             router.push("/admin/products");
             router.refresh();
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error saving product:', error);
-            alert("حدث خطأ أثناء حفظ المنتج");
+            alert("حدث خطأ أثناء حفظ المنتج: " + error.message);
         } finally {
             setLoading(false);
         }

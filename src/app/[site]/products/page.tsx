@@ -54,7 +54,7 @@ export default function ProductsPage({ params }: { params: { site: string } }) {
     return (
         <main className="min-h-screen flex flex-col">
             <Navbar />
-            <section className="container mx-auto px-4 py-12 flex-1">
+            <section className="container mx-auto px-4 py-20 flex-1">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}

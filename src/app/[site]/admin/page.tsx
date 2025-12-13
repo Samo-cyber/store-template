@@ -46,15 +46,16 @@ export default function AdminDashboard({ params }: { params: { site: string } })
                     return;
                 }
 
-                const [statsData, salesData, productsData] = await Promise.all([
-                    getDashboardStats(store.id),
-                    getMonthlySales(store.id),
-                    getTopProducts(store.id)
-                ]);
+                const response = await fetch(`/api/analytics?storeId=${store.id}`);
+                if (!response.ok) throw new Error('Failed to fetch analytics');
 
-                setStats(statsData);
-                setMonthlySales(salesData);
-                setTopProducts(productsData);
+                const data = await response.json();
+
+                setStats(data.stats);
+                // Sort monthly sales
+                const sortedSales = (data.monthlySales || []).sort((a: any, b: any) => a.month.localeCompare(b.month));
+                setMonthlySales(sortedSales);
+                setTopProducts(data.topProducts);
             } catch (error) {
                 console.error('Error loading dashboard data:', error);
             } finally {
