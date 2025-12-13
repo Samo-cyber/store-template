@@ -5,7 +5,7 @@ import { SignJWT } from 'jose';
 
 const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
 const JWT_SECRET = new TextEncoder().encode(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
@@ -45,6 +45,13 @@ export async function POST(request: Request) {
             );
         }
 
+        // Fetch user's store
+        const { data: store } = await supabase
+            .from('stores')
+            .select('slug')
+            .eq('owner_id', user.id)
+            .single();
+
         // Create Session Token
         const token = await new SignJWT({
             userId: user.id,
@@ -56,7 +63,7 @@ export async function POST(request: Request) {
             .sign(JWT_SECRET);
 
         // Set Cookie
-        const response = NextResponse.json({ success: true, user });
+        const response = NextResponse.json({ success: true, user, store });
         // Determine cookie domain
         let rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN;
         if (!rootDomain) {

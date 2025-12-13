@@ -15,7 +15,7 @@ export default function LoginPage() {
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
     const searchParams = useSearchParams();
-    const next = searchParams.get('next') || '/create-store';
+    const next = searchParams.get('next');
 
 
     const handleLogin = async (e: React.FormEvent) => {
@@ -34,7 +34,30 @@ export default function LoginPage() {
 
             if (!res.ok) throw new Error(data.error);
 
-            window.location.href = next;
+            // Redirect logic
+            if (next) {
+                window.location.href = next;
+                return;
+            }
+
+            if (data.store) {
+                // Redirect to store admin
+                const protocol = window.location.protocol;
+                let rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || window.location.host.replace('www.', '');
+                if (rootDomain) {
+                    rootDomain = rootDomain.replace('https://', '').replace('http://', '');
+                }
+
+                if (rootDomain?.includes('vercel.app')) {
+                    window.location.href = `${protocol}//${rootDomain}/store/${data.store.slug}/admin`;
+                } else {
+                    window.location.href = `${protocol}//${data.store.slug}.${rootDomain}/admin`;
+                }
+            } else {
+                // Redirect to create store if no store found
+                router.push('/register');
+            }
+
         } catch (err: any) {
             setError(err.message || "حدث خطأ أثناء تسجيل الدخول");
         } finally {
@@ -42,89 +65,72 @@ export default function LoginPage() {
         }
     };
 
-
-
     return (
-        <div className="min-h-screen flex items-center justify-center bg-slate-950 p-4 text-white">
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="w-full max-w-md space-y-8"
-            >
+        <main className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-4 relative overflow-hidden">
+            {/* Background Effects */}
+            <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-600/20 rounded-full blur-[100px]" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/20 rounded-full blur-[100px]" />
+            </div>
+
+            <div className="w-full max-w-md space-y-8 bg-white/5 p-8 rounded-3xl border border-white/10 backdrop-blur-xl z-10 shadow-2xl">
                 <div className="text-center space-y-2">
-                    <h1 className="text-3xl font-bold tracking-tight">
-                        تسجيل الدخول
-                    </h1>
-                    <p className="text-slate-400">
-                        سجل دخولك لإنشاء وإدارة متاجرك
-                    </p>
+                    <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-blue-600 mb-4 shadow-lg shadow-purple-500/20">
+                        <Lock className="w-6 h-6 text-white" />
+                    </div>
+                    <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">تسجيل الدخول</h1>
+                    <p className="text-slate-400">مرحباً بك مجدداً في برستيج</p>
                 </div>
 
-                <div className="bg-white/5 border border-white/10 rounded-2xl p-8 shadow-lg">
-                    <form onSubmit={handleLogin} className="space-y-6">
-                        {error && (
-                            <div className="p-3 text-sm text-red-500 bg-red-500/10 rounded-lg text-center">
-                                {error}
-                            </div>
-                        )}
+                <form onSubmit={handleLogin} className="space-y-6">
+                    {error && (
+                        <div className="p-3 text-sm text-red-500 bg-red-500/10 rounded-lg text-center border border-red-500/20">
+                            {error}
+                        </div>
+                    )}
 
+                    <div className="space-y-4">
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-slate-300">البريد الإلكتروني</label>
-                            <div className="relative">
-                                <Mail className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
-                                <Input
-                                    type="email"
-                                    placeholder="name@example.com"
-                                    className="pr-10 bg-slate-900/50 border-white/10"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    required
-                                />
-                            </div>
+                            <Input
+                                type="email"
+                                placeholder="name@example.com"
+                                className="bg-slate-900/50 border-white/10 focus:border-purple-500/50 transition-colors"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                            />
                         </div>
 
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-slate-300">كلمة المرور</label>
-                            <div className="relative">
-                                <Lock className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
-                                <Input
-                                    type="password"
-                                    placeholder="••••••••"
-                                    className="pr-10 bg-slate-900/50 border-white/10"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    required
-                                />
-                            </div>
+                            <Input
+                                type="password"
+                                placeholder="••••••••"
+                                className="bg-slate-900/50 border-white/10 focus:border-purple-500/50 transition-colors"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                            />
                         </div>
+                    </div>
 
-                        <div className="flex flex-col gap-4">
-                            <Button type="submit" className="w-full h-11" disabled={loading}>
-                                {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "تسجيل الدخول"}
-                            </Button>
+                    <Button
+                        type="submit"
+                        className="w-full h-12 text-lg bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 transition-all shadow-lg shadow-purple-500/20"
+                        disabled={loading}
+                    >
+                        {loading ? <Loader2 className="animate-spin" /> : "تسجيل الدخول"}
+                    </Button>
 
-                            <div className="relative">
-                                <div className="absolute inset-0 flex items-center">
-                                    <span className="w-full border-t border-white/10" />
-                                </div>
-                                <div className="relative flex justify-center text-xs uppercase">
-                                    <span className="bg-slate-950 px-2 text-slate-500">أو</span>
-                                </div>
-                            </div>
-
-                            <Link href="/register" className="w-full">
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    className="w-full h-11 hover:bg-white/5"
-                                >
-                                    ليس لديك حساب؟ إنشاء متجر جديد
-                                </Button>
-                            </Link>
-                        </div>
-                    </form>
-                </div>
-            </motion.div>
-        </div>
+                    <div className="text-center text-sm text-slate-400">
+                        ليس لديك حساب؟{" "}
+                        <Link href="/register" className="text-purple-400 hover:text-purple-300 transition-colors">
+                            إنشاء متجر جديد
+                        </Link>
+                    </div>
+                </form>
+            </div>
+        </main>
     );
 }
