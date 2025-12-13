@@ -84,7 +84,7 @@ export default function LoginPage() {
                         <Lock className="w-6 h-6 text-white" />
                     </div>
                     <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">تسجيل الدخول</h1>
-                    <p className="text-slate-400">مرحباً بك مجدداً في برستيج</p>
+                    <p className="text-slate-400">مرحباً بك مجدداً في TARGO</p>
                 </div>
 
                 <form onSubmit={handleLogin} className="space-y-6">

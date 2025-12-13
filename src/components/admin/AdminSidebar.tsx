@@ -130,7 +130,7 @@ export function AdminSidebar({ siteSlug }: { siteSlug?: string }) {
             )}>
                 <div className="p-6 border-b">
                     <h2 className="text-2xl font-bold tracking-tight">لوحة التحكم</h2>
-                    <p className="text-sm text-muted-foreground">برستيج ستور</p>
+                    <p className="text-sm text-muted-foreground">TARGO Store</p>
                 </div>
                 <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
                     {currentNavItems.map((item) => (

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 import { Store, User, LogOut, LayoutDashboard, Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -70,11 +71,11 @@ export default function LandingNavbar({ user, storeSlug }: LandingNavbarProps) {
             <div className="container mx-auto px-4 flex items-center justify-between">
                 {/* Logo */}
                 <Link href="/" className="flex items-center gap-2 group">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center shadow-lg shadow-purple-500/20 group-hover:shadow-purple-500/40 transition-all">
-                        <Store className="text-white w-6 h-6" />
+                    <div className="relative w-12 h-12 transition-transform group-hover:scale-105">
+                        <Image src="/images/logo.png" alt="TARGO" fill className="object-contain" />
                     </div>
                     <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
-                        برستيج
+                        TARGO
                     </span>
                 </Link>
 

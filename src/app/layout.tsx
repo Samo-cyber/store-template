@@ -11,8 +11,8 @@ import { NoImageDownload } from "@/components/NoImageDownload";
 const cairo = Cairo({ subsets: ["arabic"] });
 
 export const metadata: Metadata = {
-    title: "برستيج | حيث تلتقي الفخامة بالأناقة",
-    description: "متجر برستيج - وجهتك الأولى للمنتجات العصرية الفاخرة في مصر. تسوق أحدث الصيحات بجودة عالمية.",
+    title: "TARGO | حيث تلتقي الفخامة بالأناقة",
+    description: "متجر TARGO - وجهتك الأولى للمنتجات العصرية الفاخرة في مصر. تسوق أحدث الصيحات بجودة عالمية.",
 };
 
 export default function RootLayout({

@@ -42,8 +42,8 @@ export default async function StoreTemplate({ storeId, ownerId }: StoreTemplateP
             <Hero />
 
             {/* Best Sellers */}
-            <section className="container mx-auto px-4 py-20">
-                <div className="flex items-center justify-between mb-10">
+            <section className="container mx-auto px-4 py-16">
+                <div className="flex items-center justify-between mb-8">
                     <h2 className="text-3xl font-bold tracking-tight text-white">الأكثر مبيعا</h2>
                     <a href="/products" className="text-sm font-medium text-primary hover:text-primary/80 transition-colors">
                         عرض الكل &larr;
@@ -57,9 +57,9 @@ export default async function StoreTemplate({ storeId, ownerId }: StoreTemplateP
             </section>
 
             {/* New Arrivals - Full Width Background */}
-            <section className="w-full py-20 bg-white/5 border-y border-white/10">
+            <section className="w-full py-16 bg-white/5 border-y border-white/10">
                 <div className="container mx-auto px-4">
-                    <div className="flex items-center justify-between mb-10">
+                    <div className="flex items-center justify-between mb-8">
                         <h2 className="text-3xl font-bold tracking-tight text-white">وصل حديثا</h2>
                         <a href="/products" className="text-sm font-medium text-primary hover:text-primary/80 transition-colors">
                             عرض الكل &larr;
@@ -74,8 +74,8 @@ export default async function StoreTemplate({ storeId, ownerId }: StoreTemplateP
             </section>
 
             {/* Offers */}
-            <section className="container mx-auto px-4 py-20">
-                <div className="flex items-center justify-between mb-10">
+            <section className="container mx-auto px-4 py-16">
+                <div className="flex items-center justify-between mb-8">
                     <h2 className="text-3xl font-bold tracking-tight text-white">عروض خاصة</h2>
                     <a href="/products" className="text-sm font-medium text-primary hover:text-primary/80 transition-colors">
                         عرض الكل &larr;

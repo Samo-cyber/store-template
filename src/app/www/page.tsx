@@ -60,7 +60,7 @@ export default async function LandingPage() {
             <LandingNavbar user={user} storeSlug={userStore?.slug} />
 
             {/* Hero Section */}
-            <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden">
+            <section className="relative pt-24 pb-16 md:pt-32 md:pb-24 overflow-hidden">
                 {/* Background Gradients */}
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl pointer-events-none">
                     <div className="absolute top-[20%] left-[10%] w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[120px] animate-pulse" />
@@ -98,10 +98,10 @@ export default async function LandingPage() {
             </section>
 
             {/* Features Section */}
-            <section id="features" className="py-24 bg-slate-900/50 border-y border-white/5">
+            <section id="features" className="py-16 bg-slate-900/50 border-y border-white/10">
                 <div className="container mx-auto px-4">
-                    <div className="text-center mb-16">
-                        <h2 className="text-3xl md:text-4xl font-bold mb-4">لماذا تختار برستيج؟</h2>
+                    <div className="text-center mb-12">
+                        <h2 className="text-3xl md:text-4xl font-bold mb-4">لماذا تختار TARGO؟</h2>
                         <p className="text-slate-400 max-w-2xl mx-auto">نقدم لك مجموعة من الأدوات القوية التي تساعدك على إدارة متجرك وتنمية مبيعاتك بكل سهولة.</p>
                     </div>
 
@@ -132,9 +132,9 @@ export default async function LandingPage() {
             </section>
 
             {/* Pricing Section */}
-            <section id="pricing" className="py-24 relative">
+            <section id="pricing" className="py-16 relative">
                 <div className="container mx-auto px-4">
-                    <div className="text-center mb-16">
+                    <div className="text-center mb-12">
                         <h2 className="text-3xl md:text-4xl font-bold mb-4">باقات تناسب الجميع</h2>
                         <p className="text-slate-400 max-w-2xl mx-auto">اختر الباقة التي تناسب حجم تجارتك وابدأ رحلة النجاح.</p>
                     </div>
@@ -182,11 +182,11 @@ export default async function LandingPage() {
             </section>
 
             {/* About Section */}
-            <section id="about" className="py-24 bg-slate-900/50 border-y border-white/5">
+            <section id="about" className="py-16 bg-slate-900/50 border-y border-white/10">
                 <div className="container mx-auto px-4">
                     <div className="flex flex-col md:flex-row items-center gap-12 max-w-6xl mx-auto">
                         <div className="flex-1 space-y-6">
-                            <h2 className="text-3xl md:text-4xl font-bold">عن منصة برستيج</h2>
+                            <h2 className="text-3xl md:text-4xl font-bold">عن منصة TARGO</h2>
                             <p className="text-xl text-slate-400 leading-relaxed">
                                 نحن نؤمن بأن التجارة الإلكترونية يجب أن تكون متاحة للجميع. لذلك قمنا ببناء منصة تجمع بين السهولة والقوة، لتمكين التجار في الشرق الأوسط من الوصول إلى عملائهم وتقديم تجربة تسوق استثنائية.
                             </p>
@@ -223,7 +223,7 @@ export default async function LandingPage() {
             </section>
 
             {/* Featured Stores Section */}
-            <section className="py-24">
+            <section className="py-16">
                 <div className="container mx-auto px-4">
                     <div className="flex items-center justify-between mb-12">
                         <div>
@@ -270,7 +270,7 @@ export default async function LandingPage() {
             </section>
 
             {/* CTA Section */}
-            <section className="py-24 relative overflow-hidden">
+            <section className="py-16 relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 to-slate-950 pointer-events-none" />
                 <div className="container mx-auto px-4 relative z-10 text-center">
                     <h2 className="text-4xl md:text-5xl font-bold mb-8">جاهز للبدء؟</h2>

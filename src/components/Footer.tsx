@@ -38,7 +38,7 @@ export default function Footer() {
                     {/* Brand & Newsletter - Always Visible */}
                     <div className="space-y-6 md:col-span-1 pb-8 md:pb-0 border-b border-slate-800 md:border-none">
                         <div>
-                            <h3 className="text-2xl font-bold text-white tracking-tighter mb-2">برستيج.</h3>
+                            <h3 className="text-2xl font-bold text-white tracking-tighter mb-2">TARGO.</h3>
                             <p className="text-sm text-slate-400 leading-relaxed mb-4">
                                 حيث تلتقي الفخامة بالأناقة. وجهتك الأولى للمنتجات العصرية الفاخرة في مصر.
                             </p>
@@ -137,7 +137,7 @@ export default function Footer() {
                 </div>
 
                 <div className="mt-8 md:mt-16 pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-slate-500">
-                    <p>© {new Date().getFullYear()} برستيج. جميع الحقوق محفوظة.</p>
+                    <p>© {new Date().getFullYear()} TARGO. جميع الحقوق محفوظة.</p>
                     <div className="flex gap-6">
                         <Link href="/terms" className="hover:text-white transition-colors">الشروط والأحكام</Link>
                         <Link href="/privacy" className="hover:text-white transition-colors">سياسة الخصوصية</Link>
