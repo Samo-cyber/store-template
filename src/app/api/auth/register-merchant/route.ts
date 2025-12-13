@@ -67,13 +67,21 @@ export async function POST(request: Request) {
                 {
                     email,
                     password_hash: passwordHash,
-                    role: 'store_owner' // Directly set as store_owner
+                    role: 'store_owner'
                 }
             ])
             .select()
             .single();
 
-        if (userError) throw userError;
+        if (userError) {
+            if (userError.code === '23505') { // Unique violation
+                return NextResponse.json(
+                    { error: 'البريد الإلكتروني مسجل بالفعل' },
+                    { status: 400 }
+                );
+            }
+            throw userError;
+        }
 
         // 5. Create Store
         const { data: newStore, error: storeError } = await supabase
@@ -89,8 +97,15 @@ export async function POST(request: Request) {
             .single();
 
         if (storeError) {
-            // Rollback user creation if store creation fails (Best effort)
+            // Rollback user creation
             await supabase.from('users').delete().eq('id', newUser.id);
+
+            if (storeError.code === '23505') { // Unique violation
+                return NextResponse.json(
+                    { error: 'رابط المتجر مستخدم بالفعل' },
+                    { status: 400 }
+                );
+            }
             throw storeError;
         }
 
@@ -106,6 +121,7 @@ export async function POST(request: Request) {
 
         // 7. Return Success & Set Cookie
         const response = NextResponse.json({ success: true, user: newUser, store: newStore });
+
         // Determine cookie domain
         let rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN;
         if (!rootDomain) {
@@ -126,8 +142,6 @@ export async function POST(request: Request) {
             maxAge: 60 * 60 * 24 // 24 hours
         };
 
-        // Only set domain if it's a custom domain (not localhost and not vercel.app)
-        // For vercel.app, we typically use path-based routing or it's a single domain, so no need for wildcard cookie
         if (rootDomain && !rootDomain.includes('localhost') && !rootDomain.includes('vercel.app')) {
             cookieOptions.domain = `.${rootDomain}`;
         }
@@ -139,7 +153,7 @@ export async function POST(request: Request) {
     } catch (error: any) {
         console.error('Registration error:', error);
         return NextResponse.json(
-            { error: 'حدث خطأ أثناء إنشاء الحساب والمتجر' },
+            { error: error.message || 'حدث خطأ أثناء إنشاء الحساب والمتجر' },
             { status: 500 }
         );
     }
