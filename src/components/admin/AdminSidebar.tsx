@@ -33,7 +33,7 @@ const navItems = [
     },
 ];
 
-export function AdminSidebar() {
+export function AdminSidebar({ siteSlug }: { siteSlug?: string }) {
     const pathname = usePathname();
     const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
@@ -61,7 +61,25 @@ export function AdminSidebar() {
 
     // Dynamic navigation items based on current path
     const getNavItems = () => {
-        const basePath = pathname?.match(/^\/store\/[^/]+/)?.[0] || "";
+        // Logic:
+        // 1. If siteSlug contains dot, it's a domain -> use /admin links
+        // 2. If siteSlug is simple slug -> use /store/[slug]/admin links
+        // 3. Fallback to pathname regex if siteSlug not provided (e.g. direct component usage)
+
+        let basePath = "";
+
+        if (siteSlug) {
+            if (siteSlug.includes('.')) {
+                // Domain-based routing (e.g. store.com/admin)
+                basePath = "";
+            } else {
+                // Path-based routing (e.g. localhost/store/slug/admin)
+                basePath = `/store/${siteSlug}`;
+            }
+        } else {
+            // Fallback
+            basePath = pathname?.match(/^\/store\/[^/]+/)?.[0] || "";
+        }
 
         return navItems.map(item => ({
             ...item,
@@ -70,6 +88,18 @@ export function AdminSidebar() {
     };
 
     const currentNavItems = getNavItems();
+
+    // Calculate store link
+    let storeLink = "/";
+    if (siteSlug) {
+        if (siteSlug.includes('.')) {
+            storeLink = "/"; // Root of the domain
+        } else {
+            storeLink = `/store/${siteSlug}`;
+        }
+    } else {
+        storeLink = pathname?.match(/^\/store\/[^/]+/)?.[0] || "/";
+    }
 
     return (
         <>
@@ -116,7 +146,7 @@ export function AdminSidebar() {
                     ))}
                 </nav>
                 <div className="p-4 border-t mt-auto space-y-2">
-                    <Link href={pathname?.match(/^\/store\/[^/]+/)?.[0] || "/"} target="_blank">
+                    <Link href={storeLink} target="_blank">
                         <Button
                             variant="outline"
                             className="w-full justify-start gap-3"

@@ -10,8 +10,10 @@ import { COOKIE_NAME } from "@/lib/auth-config";
 
 export default function AdminLayout({
     children,
+    params,
 }: {
     children: React.ReactNode;
+    params: { site: string };
 }) {
     const pathname = usePathname();
     const router = useRouter();
@@ -118,7 +120,7 @@ export default function AdminLayout({
 
     return (
         <div className="flex min-h-screen bg-background flex-col md:flex-row">
-            <AdminSidebar />
+            <AdminSidebar siteSlug={params.site} />
             <main className="flex-1 p-4 md:p-8 overflow-y-auto pt-16 md:pt-8">
                 {children}
             </main>
