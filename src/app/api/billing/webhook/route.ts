@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     const session = event.data.object as any;
 
     if (event.type === 'checkout.session.completed') {
-        const subscription = await stripe.subscriptions.retrieve(session.subscription);
+        const subscription = await stripe.subscriptions.retrieve(session.subscription) as any;
         const storeId = session.metadata.storeId;
 
         await supabaseAdmin
