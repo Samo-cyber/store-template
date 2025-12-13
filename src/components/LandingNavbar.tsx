@@ -111,9 +111,16 @@ export default function LandingNavbar({ user, storeSlug }: LandingNavbarProps) {
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, y: 10 }}
-                                        className="absolute top-full right-0 mt-2 w-48 bg-slate-900 border border-white/10 rounded-xl shadow-xl overflow-hidden"
+                                        className="absolute top-full left-0 mt-2 w-56 bg-slate-900 border border-white/10 rounded-xl shadow-xl overflow-hidden z-50"
                                     >
                                         <div className="p-1">
+                                            <Link
+                                                href="/profile"
+                                                className="flex items-center gap-2 px-4 py-2 text-sm text-slate-300 hover:bg-white/5 hover:text-white rounded-lg transition-colors"
+                                            >
+                                                <User className="w-4 h-4" />
+                                                الملف الشخصي
+                                            </Link>
                                             <Link
                                                 href={user.role === 'super_admin' ? '/admin' : (storeSlug ? `/store/${storeSlug}/admin` : '/create-store')}
                                                 className="flex items-center gap-2 px-4 py-2 text-sm text-slate-300 hover:bg-white/5 hover:text-white rounded-lg transition-colors"
