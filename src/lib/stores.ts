@@ -25,6 +25,7 @@ export interface Store {
     slug: string;
     owner_id: string;
     settings: any;
+    template?: string;
 }
 
 export async function getStoreBySlug(slug: string): Promise<Store | null> {
