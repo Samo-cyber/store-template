@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Loader2, Store, ArrowRight } from "lucide-react";
+import { Loader2, Store, ArrowRight, LayoutTemplate, Palette } from "lucide-react";
 import Link from "next/link";
 
 export default function RegisterPage() {
@@ -12,6 +12,7 @@ export default function RegisterPage() {
     const [password, setPassword] = useState("");
     const [storeName, setStoreName] = useState("");
     const [storeSlug, setStoreSlug] = useState("");
+    const [template, setTemplate] = useState("modern");
     const [loading, setLoading] = useState(false);
     const router = useRouter();
 
@@ -23,7 +24,7 @@ export default function RegisterPage() {
             const res = await fetch('/api/auth/register-merchant', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password, storeName, storeSlug }),
+                body: JSON.stringify({ email, password, storeName, storeSlug, template }),
             });
 
             const data = await res.json();
@@ -132,6 +133,37 @@ export default function RegisterPage() {
                                 />
                             </div>
                             <p className="text-xs text-slate-500 text-right">سيتم استخدام هذا الرابط للوصول لمتجرك</p>
+                        </div>
+
+                        {/* Template Selection */}
+                        <div className="space-y-2 pt-4 border-t border-white/10">
+                            <label className="text-sm font-medium text-slate-300">اختر قالب المتجر</label>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div
+                                    onClick={() => setTemplate('modern')}
+                                    className={`cursor-pointer p-4 rounded-xl border transition-all ${template === 'modern'
+                                            ? 'bg-purple-600/20 border-purple-500'
+                                            : 'bg-slate-900/50 border-white/10 hover:border-white/30'
+                                        }`}
+                                >
+                                    <div className="flex items-center justify-center mb-2">
+                                        <LayoutTemplate className={`w-8 h-8 ${template === 'modern' ? 'text-purple-400' : 'text-slate-500'}`} />
+                                    </div>
+                                    <div className="text-center text-sm font-medium">عصري</div>
+                                </div>
+                                <div
+                                    onClick={() => setTemplate('classic')}
+                                    className={`cursor-pointer p-4 rounded-xl border transition-all ${template === 'classic'
+                                            ? 'bg-purple-600/20 border-purple-500'
+                                            : 'bg-slate-900/50 border-white/10 hover:border-white/30'
+                                        }`}
+                                >
+                                    <div className="flex items-center justify-center mb-2">
+                                        <Palette className={`w-8 h-8 ${template === 'classic' ? 'text-purple-400' : 'text-slate-500'}`} />
+                                    </div>
+                                    <div className="text-center text-sm font-medium">كلاسيكي</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 

@@ -12,7 +12,7 @@ const JWT_SECRET = new TextEncoder().encode(process.env.NEXT_PUBLIC_SUPABASE_ANO
 
 export async function POST(request: Request) {
     try {
-        const { email, password, storeName, storeSlug } = await request.json();
+        const { email, password, storeName, storeSlug, template } = await request.json();
 
         // 1. Validate Input
         if (!email || !password || !storeName || !storeSlug) {
@@ -90,7 +90,8 @@ export async function POST(request: Request) {
                 {
                     name: storeName,
                     slug: storeSlug,
-                    owner_id: newUser.id
+                    owner_id: newUser.id,
+                    template: template || 'modern'
                 }
             ])
             .select()
