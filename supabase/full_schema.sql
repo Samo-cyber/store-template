@@ -7,7 +7,7 @@ create table if not exists public.stores (
   id uuid default uuid_generate_v4() primary key,
   name text not null,
   slug text not null unique,
-  owner_id uuid references auth.users(id),
+  owner_id uuid references public.users(id),
   settings jsonb default '{}'::jsonb,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );

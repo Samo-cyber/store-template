@@ -39,9 +39,30 @@ export default function AdminProductsPage() {
             return;
         }
 
+        // 1. Get Current User
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+            setLoading(false);
+            return;
+        }
+
+        // 2. Get User's Store
+        const { data: store } = await supabase
+            .from('stores')
+            .select('id')
+            .eq('owner_id', user.id)
+            .single();
+
+        if (!store) {
+            setLoading(false);
+            return;
+        }
+
+        // 3. Fetch Products for this Store
         const { data } = await supabase
             .from('products')
             .select('*')
+            .eq('store_id', store.id)
             .order('created_at', { ascending: false });
 
         if (data) setProducts(data as Product[]);

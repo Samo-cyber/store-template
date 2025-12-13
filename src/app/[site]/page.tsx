@@ -16,9 +16,8 @@ export default async function Home({ params }: { params: { site: string } }) {
 
     const storeId = store ? store.id : "";
     // Default to 'modern' if template is missing or invalid
-    const templateName = (store?.template as TemplateType) || 'modern';
-
-    const TemplateComponent = templates[templateName] || templates.modern;
+    // Force 'modern' template (Prestige) as requested
+    const TemplateComponent = templates.modern;
 
     return <TemplateComponent storeId={storeId} />;
 }
