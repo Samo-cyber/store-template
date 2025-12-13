@@ -45,15 +45,23 @@ export function ProductForm({ initialData, isEdit = false }: ProductFormProps) {
     // Fetch store ID on mount
     useEffect(() => {
         const fetchStoreId = async () => {
-            if (!supabase) return;
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-                const { data: store } = await supabase
-                    .from('stores')
-                    .select('id')
-                    .eq('owner_id', user.id)
-                    .single();
-                if (store) setStoreId(store.id);
+            try {
+                // 1. Get User from Custom Auth API
+                const res = await fetch('/api/auth/me');
+                if (!res.ok) return;
+                const user = await res.json();
+
+                if (user && supabase) {
+                    // 2. Get Store for this User
+                    const { data: store } = await supabase
+                        .from('stores')
+                        .select('id')
+                        .eq('owner_id', user.id)
+                        .single();
+                    if (store) setStoreId(store.id);
+                }
+            } catch (error) {
+                console.error("Error fetching store:", error);
             }
         };
         fetchStoreId();
