@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Package, ShoppingCart, LogOut, Truck, Menu, X, ExternalLink } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingCart, LogOut, Truck, Menu, X, ExternalLink, CreditCard } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { createBrowserClient } from "@supabase/ssr";
