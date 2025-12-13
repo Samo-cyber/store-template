@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Lock, Mail, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
@@ -15,8 +16,7 @@ export default function LoginPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const next = searchParams.get('next') || '/create-store';
-    const initialView = searchParams.get('view') === 'signup' ? 'signup' : 'login';
-    const [view, setView] = useState<'login' | 'signup'>(initialView);
+
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -42,30 +42,7 @@ export default function LoginPage() {
         }
     };
 
-    const handleSignUp = async (e?: React.FormEvent) => {
-        if (e) e.preventDefault();
-        setLoading(true);
-        setError(null);
 
-        try {
-            const res = await fetch('/api/auth/signup', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
-            });
-
-            const data = await res.json();
-
-            if (!res.ok) throw new Error(data.error);
-
-            // Auto login after signup
-            window.location.href = next;
-        } catch (err: any) {
-            setError(err.message || "حدث خطأ أثناء إنشاء الحساب");
-        } finally {
-            setLoading(false);
-        }
-    };
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-slate-950 p-4 text-white">
@@ -76,15 +53,15 @@ export default function LoginPage() {
             >
                 <div className="text-center space-y-2">
                     <h1 className="text-3xl font-bold tracking-tight">
-                        {view === 'signup' ? 'إنشاء حساب جديد' : 'تسجيل الدخول'}
+                        تسجيل الدخول
                     </h1>
                     <p className="text-slate-400">
-                        {view === 'signup' ? 'أنشئ حسابك للبدء في بناء متجرك' : 'سجل دخولك لإنشاء وإدارة متاجرك'}
+                        سجل دخولك لإنشاء وإدارة متاجرك
                     </p>
                 </div>
 
                 <div className="bg-white/5 border border-white/10 rounded-2xl p-8 shadow-lg">
-                    <form onSubmit={view === 'signup' ? handleSignUp : handleLogin} className="space-y-6">
+                    <form onSubmit={handleLogin} className="space-y-6">
                         {error && (
                             <div className="p-3 text-sm text-red-500 bg-red-500/10 rounded-lg text-center">
                                 {error}
@@ -123,7 +100,7 @@ export default function LoginPage() {
 
                         <div className="flex flex-col gap-4">
                             <Button type="submit" className="w-full h-11" disabled={loading}>
-                                {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : (view === 'signup' ? "إنشاء حساب" : "تسجيل الدخول")}
+                                {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "تسجيل الدخول"}
                             </Button>
 
                             <div className="relative">
@@ -135,15 +112,15 @@ export default function LoginPage() {
                                 </div>
                             </div>
 
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                className="w-full h-11 hover:bg-white/5"
-                                onClick={() => setView(view === 'signup' ? 'login' : 'signup')}
-                                disabled={loading}
-                            >
-                                {view === 'signup' ? "لديك حساب بالفعل؟ تسجيل الدخول" : "ليس لديك حساب؟ إنشاء حساب جديد"}
-                            </Button>
+                            <Link href="/register" className="w-full">
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    className="w-full h-11 hover:bg-white/5"
+                                >
+                                    ليس لديك حساب؟ إنشاء متجر جديد
+                                </Button>
+                            </Link>
                         </div>
                     </form>
                 </div>
