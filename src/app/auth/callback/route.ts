@@ -6,7 +6,7 @@ export async function GET(request: Request) {
     const { searchParams, origin } = new URL(request.url)
     const code = searchParams.get('code')
     // Default next is create-store for new users
-    const next = searchParams.get('next') ?? '/create-store'
+    const next = searchParams.get('next') ?? '/admin'
 
     if (code) {
         const cookieStore = cookies()
@@ -70,13 +70,13 @@ export async function GET(request: Request) {
                     }
                 }
 
-                // Default: New User or User without store -> Create Store
-                return NextResponse.redirect(`${origin}/create-store`)
+                // Default: New User or User without store -> Register
+                return NextResponse.redirect(`${origin}/register`)
 
             } catch (err) {
                 console.error('Error in smart redirect:', err)
                 // Fallback
-                return NextResponse.redirect(`${origin}/create-store`)
+                return NextResponse.redirect(`${origin}/register`)
             }
         }
     }
