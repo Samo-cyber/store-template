@@ -27,6 +27,7 @@ export interface Store {
     settings: any;
     template?: string;
     description?: string;
+    stripe_publishable_key?: string;
 }
 
 export async function getStoreBySlug(slug: string): Promise<Store | null> {

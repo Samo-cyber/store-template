@@ -31,11 +31,7 @@ const navItems = [
         href: "/admin/shipping",
         icon: Truck,
     },
-    {
-        title: "الاشتراكات",
-        href: "/admin/billing",
-        icon: CreditCard,
-    },
+
 ];
 
 export function AdminSidebar({ siteSlug }: { siteSlug?: string }) {

@@ -17,6 +17,8 @@ export interface OrderData {
     }[];
     total_amount: number;
     shipping_cost: number;
+    payment_intent_id?: string;
+    payment_status?: string;
 }
 
 export async function submitOrder(orderData: OrderData) {
@@ -35,7 +37,9 @@ export async function submitOrder(orderData: OrderData) {
             p_address: orderData.address,
             p_total_amount: orderData.total_amount,
             p_items: orderData.items,
-            p_shipping_cost: orderData.shipping_cost
+            p_shipping_cost: orderData.shipping_cost,
+            p_payment_intent_id: orderData.payment_intent_id || null,
+            p_payment_status: orderData.payment_status || 'pending'
         });
 
         if (error) throw error;

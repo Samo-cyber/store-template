@@ -72,7 +72,7 @@ export default function LandingNavbar({ user, storeSlug }: LandingNavbarProps) {
                 {/* Logo */}
                 <Link href="/" className="flex items-center gap-2 group">
                     <div className="relative w-12 h-12 transition-transform group-hover:scale-105">
-                        <Image src="/images/logo.png" alt="TARGO" fill className="object-contain" />
+                        <Image src="/logo.png" alt="TARGO" fill className="object-contain" />
                     </div>
                     <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
                         TARGO
