@@ -97,10 +97,50 @@ export default function AdminProductsPage() {
         }
     }
 
+    async function handleDemoData() {
+        setLoading(true);
+        try {
+            const res = await fetch('/api/stores/demo-data', { method: 'POST' });
+            if (!res.ok) throw new Error("Failed");
+            loadProducts();
+        } catch (e) {
+            alert("حدث خطأ أثناء إضافة البيانات التجريبية");
+            setLoading(false);
+        }
+    }
+
     if (loading) {
         return (
             <div className="flex items-center justify-center h-full">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        );
+    }
+
+    if (products.length === 0) {
+        return (
+            <div className="flex flex-col items-center justify-center h-[60vh] space-y-6 text-center">
+                <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center">
+                    <Plus className="w-10 h-10 text-slate-400" />
+                </div>
+                <div className="space-y-2">
+                    <h2 className="text-2xl font-bold">لا توجد منتجات بعد</h2>
+                    <p className="text-muted-foreground max-w-sm mx-auto">
+                        ابدأ بإضافة منتجاتك يدوياً أو استخدم البيانات التجريبية لرؤية كيف سيبدو متجرك.
+                    </p>
+                </div>
+                <div className="flex gap-4">
+                    <Link href={`${basePath}/admin/products/new`}>
+                        <Button className="gap-2">
+                            <Plus className="h-4 w-4" />
+                            إضافة منتج جديد
+                        </Button>
+                    </Link>
+                    <Button variant="outline" onClick={handleDemoData} className="gap-2">
+                        <Loader2 className="h-4 w-4" />
+                        تعبئة بيانات تجريبية
+                    </Button>
+                </div>
             </div>
         );
     }

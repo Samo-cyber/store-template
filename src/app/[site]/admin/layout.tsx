@@ -43,49 +43,37 @@ export default function AdminLayout({
                 return;
             }
 
-            const { data: { session } } = await supabase.auth.getSession();
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
 
-            if (!session) {
-                console.log("AdminLayout: No session found, redirecting to login");
-                router.push("/admin/login?source=client");
-                return;
-            }
+                if (!session) {
+                    console.log("AdminLayout: No session found, redirecting to login");
+                    router.push("/admin/login?source=client");
+                    return;
+                }
 
-            // Check if user is owner of the store
-            // We need to get the store slug from the URL
-            // Since this is a layout, we can't easily access params directly in all Next.js versions without props
-            // But we can parse pathname
-            const pathParts = pathname?.split('/') || [];
-            // Path can be /store/[slug]/admin or /[slug]/admin (rewritten)
-            // If rewritten, pathname is /[slug]/admin
-            // If path-based, pathname is /store/[slug]/admin
+                // Check onboarding status
+                const { data: storeData } = await supabase
+                    .from('stores')
+                    .select('onboarding_completed')
+                    .eq('owner_id', session.user.id)
+                    .single();
 
-            let slug = '';
-            if (pathname?.startsWith('/store/')) {
-                slug = pathParts[2];
-            } else {
-                // In rewritten mode, the first part is the slug? 
-                // No, usePathname returns the path *after* rewrite in some versions, or before.
-                // Actually, in the rewritten middleware, we rewrite to /[site]/...
-                // So the component sees /[site]/...
-                // But wait, usePathname in Client Components returns the URL shown in browser!
-                // If browser shows domain.com/store/slug, usePathname is /store/slug
-                // If browser shows slug.domain.com, usePathname is /
-
-                // This is tricky.
-                // The safest way is to rely on the fact that if we are here, we are in the admin panel.
-                // If we are on a subdomain, we can't easily get the slug from pathname if it's root.
-                // But we can get it from window.location.host if needed.
-
-                // However, for now, let's rely on the fact that RLS protects the data.
-                // If the user isn't the owner, they won't see any data in the dashboard.
-                // Adding a strict redirect here might be complex due to "path-based" vs "subdomain" detection on client.
-
-                // Let's skip the strict redirect for now and rely on RLS + Dashboard empty state.
+                if (storeData && !storeData.onboarding_completed && !pathname?.includes('/onboarding')) {
+                    if (pathname?.startsWith('/store/')) {
+                        const slug = pathname.split('/')[2];
+                        router.push(`/store/${slug}/admin/onboarding`);
+                    } else {
+                        router.push("/admin/onboarding");
+                    }
+                    return;
+                }
+            } catch (e) {
+                console.error("Auth check failed", e);
+                router.push("/admin/login?source=error");
+            } finally {
                 setIsLoading(false);
             }
-
-            setIsLoading(false);
         };
 
         checkAuth();

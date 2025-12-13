@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Package, ShoppingCart, LogOut, Truck, Menu, X, ExternalLink, CreditCard } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingCart, LogOut, Truck, Menu, X, ExternalLink, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { createBrowserClient } from "@supabase/ssr";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { COOKIE_NAME } from "@/lib/auth-config";
+import { LivePreviewModal } from "./LivePreviewModal";
 
 const navItems = [
     {
@@ -38,6 +39,7 @@ export function AdminSidebar({ siteSlug }: { siteSlug?: string }) {
     const pathname = usePathname();
     const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
+    const [showPreview, setShowPreview] = useState(false);
 
     // Safely initialize Supabase client
     const [supabase] = useState(() => process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -104,6 +106,12 @@ export function AdminSidebar({ siteSlug }: { siteSlug?: string }) {
 
     return (
         <>
+            <LivePreviewModal
+                isOpen={showPreview}
+                onClose={() => setShowPreview(false)}
+                url={storeLink}
+            />
+
             {/* Mobile Toggle Button */}
             <div className="md:hidden fixed top-4 right-4 z-50">
                 <Button variant="outline" size="icon" onClick={toggleSidebar} className="bg-background">
@@ -147,15 +155,14 @@ export function AdminSidebar({ siteSlug }: { siteSlug?: string }) {
                     ))}
                 </nav>
                 <div className="p-4 border-t mt-auto space-y-2">
-                    <Link href={storeLink} target="_blank">
-                        <Button
-                            variant="outline"
-                            className="w-full justify-start gap-3"
-                        >
-                            <ExternalLink className="h-5 w-5" />
-                            زيارة المتجر
-                        </Button>
-                    </Link>
+                    <Button
+                        variant="outline"
+                        className="w-full justify-start gap-3"
+                        onClick={() => setShowPreview(true)}
+                    >
+                        <Eye className="h-5 w-5" />
+                        معاينة المتجر
+                    </Button>
                     <Button
                         variant="ghost"
                         className="w-full justify-start gap-3 text-red-500 hover:text-red-600 hover:bg-red-500/10"

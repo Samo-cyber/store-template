@@ -23,6 +23,7 @@ import {
 } from 'recharts';
 
 import { getStoreBySlug } from "@/lib/stores";
+import { SetupChecklist } from "@/components/admin/SetupChecklist";
 
 export default function AdminDashboard({ params }: { params: { site: string } }) {
     const [stats, setStats] = useState<DashboardStats>({
@@ -34,6 +35,7 @@ export default function AdminDashboard({ params }: { params: { site: string } })
     const [monthlySales, setMonthlySales] = useState<MonthlySales[]>([]);
     const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
     const [loading, setLoading] = useState(true);
+    const [isCustomized, setIsCustomized] = useState(false);
 
     useEffect(() => {
         async function loadData() {
@@ -45,6 +47,9 @@ export default function AdminDashboard({ params }: { params: { site: string } })
                     console.error('Store not found');
                     return;
                 }
+
+                // Check customization
+                setIsCustomized(!!store.description && store.description.length > 0);
 
                 const response = await fetch(`/api/analytics?storeId=${store.id}`);
                 if (!response.ok) throw new Error('Failed to fetch analytics');
@@ -78,8 +83,15 @@ export default function AdminDashboard({ params }: { params: { site: string } })
         <div className="space-y-8">
             <div>
                 <h1 className="text-3xl font-bold tracking-tight">نظرة عامة</h1>
-                <p className="text-muted-foreground">مرحباً بك في لوحة تحكم برستيج.</p>
+                <p className="text-muted-foreground">مرحباً بك في لوحة تحكم TARGO.</p>
             </div>
+
+            <SetupChecklist
+                storeSlug={params.site}
+                hasProducts={stats.totalProducts > 0}
+                hasOrders={stats.totalOrders > 0}
+                isCustomized={isCustomized}
+            />
 
             {/* Stats Cards */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

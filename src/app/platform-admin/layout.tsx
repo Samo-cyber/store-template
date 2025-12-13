@@ -41,34 +41,31 @@ export default function PlatformAdminLayout({
 
     useEffect(() => {
         const checkAuth = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
+            try {
+                const res = await fetch('/api/auth/me');
+                if (!res.ok) {
+                    router.push("/admin/login");
+                    return;
+                }
+                const user = await res.json();
 
-            if (!session) {
+                if (!user || user.role !== 'super_admin') {
+                    router.push("/");
+                    return;
+                }
+            } catch (e) {
+                console.error("Auth check failed", e);
                 router.push("/admin/login");
-                return;
+            } finally {
+                setIsLoading(false);
             }
-
-            // Verify Super Admin Role
-            const { data: profile } = await supabase
-                .from('users')
-                .select('role')
-                .eq('id', session.user.id)
-                .single();
-
-            if (profile?.role !== 'super_admin') {
-                // Redirect unauthorized users
-                router.push("/");
-                return;
-            }
-
-            setIsLoading(false);
         };
 
         checkAuth();
-    }, [supabase, router]);
+    }, [router]);
 
     const handleLogout = async () => {
-        await supabase.auth.signOut();
+        await fetch('/api/auth/logout', { method: 'POST' });
         router.push("/admin/login");
     };
 
