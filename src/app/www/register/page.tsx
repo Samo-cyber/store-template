@@ -50,6 +50,11 @@ export default function RegisterPage() {
                 <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/20 rounded-full blur-[100px]" />
             </div>
 
+            <Link href="/" className="absolute top-8 right-8 z-20 flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
+                <ArrowRight className="w-5 h-5" />
+                <span>العودة للرئيسية</span>
+            </Link>
+
             <div className="w-full max-w-lg space-y-8 bg-white/5 p-8 rounded-3xl border border-white/10 backdrop-blur-xl z-10 shadow-2xl">
                 <div className="text-center space-y-2">
                     <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-blue-600 mb-4 shadow-lg shadow-purple-500/20">

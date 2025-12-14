@@ -4,6 +4,7 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { ExternalLink, Store, Shield, Zap, BarChart3, CheckCircle2, LayoutDashboard } from "lucide-react";
 import LandingNavbar from "@/components/LandingNavbar";
+import LandingFooter from "@/components/LandingFooter";
 
 export default async function LandingPage() {
     const cookieStore = cookies();
@@ -310,6 +311,8 @@ export default async function LandingPage() {
                     </div>
                 </div>
             </section>
+
+            <LandingFooter />
         </main>
     );
 }

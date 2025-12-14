@@ -52,14 +52,26 @@ export default function AdminLayout({
                     return;
                 }
 
-                // Check onboarding status
+                // Check if user owns THIS specific store
                 const { data: storeData } = await supabase
                     .from('stores')
-                    .select('onboarding_completed')
-                    .eq('owner_id', session.user.id)
+                    .select('owner_id, onboarding_completed')
+                    .eq('slug', params.site)
                     .single();
 
-                if (storeData && !storeData.onboarding_completed && !pathname?.includes('/onboarding')) {
+                if (!storeData) {
+                    console.log("AdminLayout: Store not found");
+                    router.push("/"); // Or 404
+                    return;
+                }
+
+                if (storeData.owner_id !== session.user.id) {
+                    console.log("AdminLayout: User does not own this store");
+                    router.push("/"); // Access Denied
+                    return;
+                }
+
+                if (!storeData.onboarding_completed && !pathname?.includes('/onboarding')) {
                     if (pathname?.startsWith('/store/')) {
                         const slug = pathname.split('/')[2];
                         router.push(`/store/${slug}/admin/onboarding`);

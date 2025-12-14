@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Package, ShoppingCart, LogOut, Truck, Menu, X, ExternalLink, Eye } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingCart, LogOut, Truck, Menu, X, ExternalLink, Eye, User, Home } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { createBrowserClient } from "@supabase/ssr";
@@ -13,7 +13,7 @@ import { LivePreviewModal } from "./LivePreviewModal";
 
 const navItems = [
     {
-        title: "الرئيسية",
+        title: "نظرة عامة",
         href: "/admin",
         icon: LayoutDashboard,
     },
@@ -163,6 +163,27 @@ export function AdminSidebar({ siteSlug }: { siteSlug?: string }) {
                         <Eye className="h-5 w-5" />
                         معاينة المتجر
                     </Button>
+
+                    <Link href="/profile" className="block">
+                        <Button
+                            variant="ghost"
+                            className="w-full justify-start gap-3 hover:bg-muted"
+                        >
+                            <User className="h-5 w-5" />
+                            الملف الشخصي
+                        </Button>
+                    </Link>
+
+                    <Link href="/" className="block">
+                        <Button
+                            variant="ghost"
+                            className="w-full justify-start gap-3 hover:bg-muted"
+                        >
+                            <Home className="h-5 w-5" />
+                            العودة للرئيسية
+                        </Button>
+                    </Link>
+
                     <Button
                         variant="ghost"
                         className="w-full justify-start gap-3 text-red-500 hover:text-red-600 hover:bg-red-500/10"

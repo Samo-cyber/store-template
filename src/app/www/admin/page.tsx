@@ -2,9 +2,21 @@
 
 import { useEffect, useState } from "react";
 import { createBrowserClient } from "@supabase/ssr";
-import { Loader2, Store, Users, DollarSign, ExternalLink, Home, Settings, Package, X } from "lucide-react";
+import { Loader2, Store, Users, DollarSign, ExternalLink, Home, Settings, Package, X, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
+import {
+    AreaChart,
+    Area,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    ResponsiveContainer,
+    BarChart,
+    Bar,
+    Legend
+} from 'recharts';
 import {
     Dialog,
     DialogContent,
@@ -20,6 +32,8 @@ export default function SuperAdminDashboard() {
     const [settings, setSettings] = useState<any>(null);
     const [selectedStoreProducts, setSelectedStoreProducts] = useState<any[]>([]);
     const [productsLoading, setProductsLoading] = useState(false);
+    const [revenueData, setRevenueData] = useState<any[]>([]);
+    const [growthData, setGrowthData] = useState<any[]>([]);
 
     const [supabase] = useState(() => createBrowserClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -48,6 +62,13 @@ export default function SuperAdminDashboard() {
                 .select('*')
                 .single();
             if (settingsData) setSettings(settingsData);
+
+            // 4. Load Charts Data
+            const { data: revenue } = await supabase.rpc('get_platform_monthly_revenue');
+            if (revenue) setRevenueData(revenue);
+
+            const { data: growth } = await supabase.rpc('get_platform_growth');
+            if (growth) setGrowthData(growth);
 
         } catch (error) {
             console.error("Error loading dashboard:", error);
@@ -101,17 +122,17 @@ export default function SuperAdminDashboard() {
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold">لوحة تحكم الإدارة</h1>
-                        <p className="text-slate-400">نظرة عامة على المنصة</p>
+                        <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">لوحة تحكم الإدارة</h1>
+                        <p className="text-slate-400">نظرة عامة على أداء المنصة والنمو</p>
                     </div>
                     <div className="flex items-center gap-4">
                         <Link href="/">
-                            <Button variant="outline" className="gap-2 border-white/10 hover:bg-white/5">
+                            <Button variant="outline" className="gap-2 border-white/10 hover:bg-white/5 text-slate-300 hover:text-white">
                                 <Home className="w-4 h-4" />
                                 الرئيسية
                             </Button>
                         </Link>
-                        <Button onClick={loadDashboardData} variant="outline" className="border-white/10 hover:bg-white/5">
+                        <Button onClick={loadDashboardData} variant="outline" className="border-white/10 hover:bg-white/5 text-slate-300 hover:text-white">
                             تحديث البيانات
                         </Button>
                     </div>
@@ -119,47 +140,53 @@ export default function SuperAdminDashboard() {
 
                 {/* Stats Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm hover:bg-white/10 transition-colors">
                         <div className="flex items-center gap-4 mb-4">
-                            <div className="p-3 rounded-xl bg-purple-500/20 text-purple-400">
+                            <div className="p-3 rounded-xl bg-purple-500/20 text-purple-400 shadow-lg shadow-purple-500/10">
                                 <Store className="w-6 h-6" />
                             </div>
                             <div className="text-slate-400">إجمالي المتاجر</div>
                         </div>
                         <div className="text-3xl font-bold">{stats?.totalStores || 0}</div>
+                        <div className="text-xs text-green-400 mt-2 flex items-center gap-1">
+                            <TrendingUp className="w-3 h-3" />
+                            <span>نشط حالياً</span>
+                        </div>
                     </div>
 
-                    <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm hover:bg-white/10 transition-colors">
                         <div className="flex items-center gap-4 mb-4">
-                            <div className="p-3 rounded-xl bg-blue-500/20 text-blue-400">
+                            <div className="p-3 rounded-xl bg-blue-500/20 text-blue-400 shadow-lg shadow-blue-500/10">
                                 <Users className="w-6 h-6" />
                             </div>
                             <div className="text-slate-400">إجمالي المستخدمين</div>
                         </div>
                         <div className="text-3xl font-bold">{stats?.totalUsers || 0}</div>
+                        <div className="text-xs text-blue-400 mt-2">مسجل في المنصة</div>
                     </div>
 
-                    <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm hover:bg-white/10 transition-colors">
                         <div className="flex items-center gap-4 mb-4">
-                            <div className="p-3 rounded-xl bg-green-500/20 text-green-400">
+                            <div className="p-3 rounded-xl bg-green-500/20 text-green-400 shadow-lg shadow-green-500/10">
                                 <DollarSign className="w-6 h-6" />
                             </div>
                             <div className="text-slate-400">إجمالي المبيعات</div>
                         </div>
-                        <div className="text-3xl font-bold">{stats?.totalRevenue || 0} ج.م</div>
+                        <div className="text-3xl font-bold">{stats?.totalRevenue?.toLocaleString() || 0} ج.م</div>
+                        <div className="text-xs text-green-400 mt-2">إيرادات تراكمية</div>
                     </div>
 
                     {/* Settings Card */}
-                    <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm hover:bg-white/10 transition-colors">
                         <div className="flex items-center gap-4 mb-4">
-                            <div className="p-3 rounded-xl bg-orange-500/20 text-orange-400">
+                            <div className="p-3 rounded-xl bg-orange-500/20 text-orange-400 shadow-lg shadow-orange-500/10">
                                 <Settings className="w-6 h-6" />
                             </div>
                             <div className="text-slate-400">إعدادات الموقع</div>
                         </div>
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
-                                <span className="text-sm">السماح بالتسجيل</span>
+                                <span className="text-sm text-slate-300">السماح بالتسجيل</span>
                                 <div
                                     className={`w-10 h-6 rounded-full p-1 cursor-pointer transition-colors ${settings?.allow_registration ? 'bg-green-500' : 'bg-slate-700'}`}
                                     onClick={() => updateSetting('allow_registration', !settings?.allow_registration)}
@@ -168,7 +195,7 @@ export default function SuperAdminDashboard() {
                                 </div>
                             </div>
                             <div className="flex items-center justify-between">
-                                <span className="text-sm">وضع الصيانة</span>
+                                <span className="text-sm text-slate-300">وضع الصيانة</span>
                                 <div
                                     className={`w-10 h-6 rounded-full p-1 cursor-pointer transition-colors ${settings?.maintenance_mode ? 'bg-green-500' : 'bg-slate-700'}`}
                                     onClick={() => updateSetting('maintenance_mode', !settings?.maintenance_mode)}
@@ -180,10 +207,72 @@ export default function SuperAdminDashboard() {
                     </div>
                 </div>
 
+                {/* Charts Section */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Revenue Chart */}
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+                        <div className="mb-6">
+                            <h3 className="text-lg font-bold text-white">نمو الإيرادات</h3>
+                            <p className="text-sm text-slate-400">تحليل الإيرادات الشهرية للمنصة</p>
+                        </div>
+                        <div className="h-[300px] w-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={revenueData}>
+                                    <defs>
+                                        <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8} />
+                                            <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
+                                    <XAxis dataKey="month" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+                                    <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value / 1000}k`} />
+                                    <Tooltip
+                                        contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px', color: '#fff' }}
+                                        itemStyle={{ color: '#fff' }}
+                                        formatter={(value: number) => [`${value.toLocaleString()} ج.م`, 'الإيرادات']}
+                                    />
+                                    <Area type="monotone" dataKey="revenue" stroke="#8b5cf6" fillOpacity={1} fill="url(#colorRevenue)" />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+
+                    {/* Growth Chart */}
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+                        <div className="mb-6">
+                            <h3 className="text-lg font-bold text-white">نمو المنصة</h3>
+                            <p className="text-sm text-slate-400">المتاجر والمستخدمين الجدد شهرياً</p>
+                        </div>
+                        <div className="h-[300px] w-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={growthData}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
+                                    <XAxis dataKey="month" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+                                    <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+                                    <Tooltip
+                                        contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px', color: '#fff' }}
+                                        cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                                    />
+                                    <Legend />
+                                    <Bar dataKey="new_stores" name="متاجر جديدة" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                                    <Bar dataKey="new_users" name="مستخدمين جدد" fill="#10b981" radius={[4, 4, 0, 0]} />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+                </div>
+
                 {/* Stores Table */}
                 <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
-                    <div className="p-6 border-b border-white/10">
-                        <h2 className="text-xl font-bold">المتاجر المسجلة</h2>
+                    <div className="p-6 border-b border-white/10 flex items-center justify-between">
+                        <div>
+                            <h2 className="text-xl font-bold">المتاجر المسجلة</h2>
+                            <p className="text-sm text-slate-400 mt-1">إدارة ومراقبة جميع المتاجر في المنصة</p>
+                        </div>
+                        <div className="flex gap-2">
+                            <Button variant="outline" size="sm" className="border-white/10 text-slate-300">تصدير CSV</Button>
+                        </div>
                     </div>
                     <div className="overflow-x-auto">
                         <table className="w-full text-right">
@@ -199,21 +288,32 @@ export default function SuperAdminDashboard() {
                             </thead>
                             <tbody className="divide-y divide-white/5">
                                 {stores.map((store) => (
-                                    <tr key={store.store_id} className="hover:bg-white/5 transition-colors">
-                                        <td className="p-4 font-medium">{store.store_name}</td>
+                                    <tr key={store.store_id} className="hover:bg-white/5 transition-colors group">
+                                        <td className="p-4 font-medium">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 rounded bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center text-xs font-bold">
+                                                    {store.store_name.charAt(0)}
+                                                </div>
+                                                {store.store_name}
+                                            </div>
+                                        </td>
                                         <td className="p-4 text-slate-400">{store.owner_email}</td>
-                                        <td className="p-4 font-bold text-green-400">{store.total_revenue} ج.م</td>
-                                        <td className="p-4">{store.total_orders}</td>
+                                        <td className="p-4 font-bold text-green-400">{store.total_revenue.toLocaleString()} ج.م</td>
+                                        <td className="p-4">
+                                            <span className="px-2 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs">
+                                                {store.total_orders} طلب
+                                            </span>
+                                        </td>
                                         <td className="p-4 text-slate-400">
                                             {new Date(store.created_at).toLocaleDateString('ar-EG')}
                                         </td>
-                                        <td className="p-4 flex items-center gap-2">
+                                        <td className="p-4 flex items-center gap-2 opacity-50 group-hover:opacity-100 transition-opacity">
                                             <a
                                                 href={`http://${store.store_slug}.localhost:3000`} // Adjust for production
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                             >
-                                                <Button size="icon" variant="ghost" className="h-8 w-8 text-purple-400 hover:text-purple-300">
+                                                <Button size="icon" variant="ghost" className="h-8 w-8 text-purple-400 hover:text-purple-300 hover:bg-purple-500/10">
                                                     <ExternalLink className="w-4 h-4" />
                                                 </Button>
                                             </a>
@@ -223,7 +323,7 @@ export default function SuperAdminDashboard() {
                                                     <Button
                                                         size="icon"
                                                         variant="ghost"
-                                                        className="h-8 w-8 text-blue-400 hover:text-blue-300"
+                                                        className="h-8 w-8 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10"
                                                         onClick={() => loadStoreProducts(store.store_id)}
                                                     >
                                                         <Package className="w-4 h-4" />
