@@ -13,6 +13,7 @@ export default function SuperAdminLayout({
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(true);
     const [isDenied, setIsDenied] = useState(false);
+    const [debugInfo, setDebugInfo] = useState<any>(null);
 
     const [supabase] = useState(() => createBrowserClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -48,6 +49,7 @@ export default function SuperAdminLayout({
                 }
 
                 console.log("SuperAdminLayout: User role:", userRole?.role);
+                setDebugInfo({ userId: session.user.id, role: userRole?.role });
 
                 if (userRole?.role !== 'super_admin') {
                     console.log("SuperAdminLayout: Not super_admin, access denied");
@@ -108,6 +110,13 @@ export default function SuperAdminLayout({
                         ليس لديك صلاحية للوصول إلى لوحة تحكم السوبر أدمن.
                         يرجى التأكد من تسجيل الدخول بالحساب الصحيح.
                     </p>
+
+                    {/* Debug Info */}
+                    <div className="mb-6 p-4 bg-black/30 rounded text-left text-xs font-mono text-slate-500 overflow-hidden">
+                        <p>User ID: {debugInfo?.userId}</p>
+                        <p>Role: {debugInfo?.role || 'null'}</p>
+                    </div>
+
                     <div className="flex gap-4 justify-center">
                         <button
                             onClick={() => router.push('/')}
@@ -115,14 +124,12 @@ export default function SuperAdminLayout({
                         >
                             العودة للرئيسية
                         </button>
-                        {process.env.NODE_ENV === 'development' && (
-                            <button
-                                onClick={handleFixPermissions}
-                                className="px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-lg transition-colors"
-                            >
-                                إصلاح الصلاحيات (Dev)
-                            </button>
-                        )}
+                        <button
+                            onClick={handleFixPermissions}
+                            className="px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-lg transition-colors"
+                        >
+                            إصلاح الصلاحيات (اضغط هنا)
+                        </button>
                     </div>
                 </div>
             </div>
