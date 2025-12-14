@@ -76,6 +76,29 @@ export default function SuperAdminLayout({
         );
     }
 
+    const handleFixPermissions = async () => {
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) return;
+
+            const res = await fetch('/api/admin/promote', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${session.access_token}`
+                }
+            });
+
+            if (res.ok) {
+                window.location.reload();
+            } else {
+                alert("Failed to fix permissions");
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Error fixing permissions");
+        }
+    };
+
     if (isDenied) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center bg-slate-950 text-white p-4">
@@ -85,12 +108,22 @@ export default function SuperAdminLayout({
                         ليس لديك صلاحية للوصول إلى لوحة تحكم السوبر أدمن.
                         يرجى التأكد من تسجيل الدخول بالحساب الصحيح.
                     </p>
-                    <button
-                        onClick={() => router.push('/')}
-                        className="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors"
-                    >
-                        العودة للرئيسية
-                    </button>
+                    <div className="flex gap-4 justify-center">
+                        <button
+                            onClick={() => router.push('/')}
+                            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors"
+                        >
+                            العودة للرئيسية
+                        </button>
+                        {process.env.NODE_ENV === 'development' && (
+                            <button
+                                onClick={handleFixPermissions}
+                                className="px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-lg transition-colors"
+                            >
+                                إصلاح الصلاحيات (Dev)
+                            </button>
+                        )}
+                    </div>
                 </div>
             </div>
         );
