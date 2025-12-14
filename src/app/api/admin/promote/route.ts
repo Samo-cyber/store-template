@@ -35,11 +35,15 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
         }
 
-        // 2. Promote the user
+        // 2. Promote the user (Upsert to ensure row exists)
         const { error: updateError } = await supabaseAdmin
             .from('users')
-            .update({ role: 'super_admin' })
-            .eq('id', user.id);
+            .upsert({
+                id: user.id,
+                email: user.email,
+                role: 'super_admin',
+                updated_at: new Date().toISOString()
+            }, { onConflict: 'id' });
 
         if (updateError) {
             return NextResponse.json({ error: updateError.message }, { status: 500 });
