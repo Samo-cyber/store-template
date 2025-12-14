@@ -34,7 +34,7 @@ export async function GET(request: Request) {
 
         const { data: user, error } = await supabaseAdmin
             .from('users')
-            .select('id, email, created_at')
+            .select('id, email, created_at, full_name, phone, bio')
             .eq('id', userPayload.userId)
             .single();
 
@@ -55,7 +55,7 @@ export async function PUT(request: Request) {
         }
 
         const body = await request.json();
-        const { email, password, currentPassword } = body;
+        const { email, password, currentPassword, full_name, phone, bio } = body;
 
         // 1. Verify current password if changing sensitive info
         const { data: currentUser } = await supabaseAdmin
@@ -80,6 +80,10 @@ export async function PUT(request: Request) {
 
         const updates: any = {};
         if (email) updates.email = email;
+        if (full_name !== undefined) updates.full_name = full_name;
+        if (phone !== undefined) updates.phone = phone;
+        if (bio !== undefined) updates.bio = bio;
+
         if (password) {
             updates.password_hash = await bcrypt.hash(password, 10);
         }
@@ -92,7 +96,7 @@ export async function PUT(request: Request) {
             .from('users')
             .update(updates)
             .eq('id', userPayload.userId)
-            .select('id, email, created_at')
+            .select('id, email, created_at, full_name, phone, bio')
             .single();
 
         if (error) throw error;

@@ -108,7 +108,7 @@ export default async function LandingPage() {
                                 </Button>
                             </Link>
                         ) : (
-                            <Link href="/register">
+                            <Link href="/create-store">
                                 <Button size="lg" className="h-14 px-8 text-lg rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-xl shadow-primary/20 hover:scale-105">
                                     <Store className="w-5 h-5 ml-2" />
                                     أنشئ متجرك الآن

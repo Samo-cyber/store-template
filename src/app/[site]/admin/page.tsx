@@ -37,21 +37,24 @@ export default function AdminDashboard({ params }: { params: { site: string } })
     const [loading, setLoading] = useState(true);
     const [isCustomized, setIsCustomized] = useState(false);
 
+    const [store, setStore] = useState<any>(null);
+
     useEffect(() => {
         async function loadData() {
             try {
                 // Fetch store first
-                const store = await getStoreBySlug(params.site);
+                const storeData = await getStoreBySlug(params.site);
 
-                if (!store) {
+                if (!storeData) {
                     console.error('Store not found');
                     return;
                 }
+                setStore(storeData);
 
                 // Check customization
-                setIsCustomized(!!store.description && store.description.length > 0);
+                setIsCustomized(!!storeData.description && storeData.description.length > 0);
 
-                const response = await fetch(`/api/analytics?storeId=${store.id}`);
+                const response = await fetch(`/api/analytics?storeId=${storeData.id}`);
                 if (!response.ok) throw new Error('Failed to fetch analytics');
 
                 const data = await response.json();
@@ -87,10 +90,12 @@ export default function AdminDashboard({ params }: { params: { site: string } })
             </div>
 
             <SetupChecklist
+                storeId={store?.id}
                 storeSlug={params.site}
                 hasProducts={stats.totalProducts > 0}
                 hasOrders={stats.totalOrders > 0}
                 isCustomized={isCustomized}
+                onboardingCompleted={store?.onboarding_completed}
             />
 
             {/* Stats Cards */}

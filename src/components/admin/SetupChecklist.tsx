@@ -1,17 +1,45 @@
 "use client";
 
-import { CheckCircle2, Circle, ArrowRight } from "lucide-react";
+import { CheckCircle2, Circle, ArrowRight, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface SetupChecklistProps {
+    storeId: string;
     storeSlug: string;
     hasProducts: boolean;
     hasOrders: boolean;
     isCustomized: boolean; // e.g. has logo/description
+    onboardingCompleted?: boolean;
 }
 
-export function SetupChecklist({ storeSlug, hasProducts, hasOrders, isCustomized }: SetupChecklistProps) {
+export function SetupChecklist({ storeId, storeSlug, hasProducts, hasOrders, isCustomized, onboardingCompleted }: SetupChecklistProps) {
+    const [loading, setLoading] = useState(false);
+    const router = useRouter();
+
+    const handleVisitStore = async () => {
+        if (onboardingCompleted) return;
+
+        setLoading(true);
+        try {
+            await fetch('/api/stores/update', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    storeId,
+                    updates: { onboarding_completed: true }
+                })
+            });
+            router.refresh();
+        } catch (error) {
+            console.error("Failed to update onboarding status", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const tasks = [
         {
             id: 'products',
@@ -33,10 +61,11 @@ export function SetupChecklist({ storeSlug, hasProducts, hasOrders, isCustomized
             id: 'visit',
             title: 'زر متجرك',
             description: 'شاهد كيف يرى العملاء متجرك',
-            completed: false, // Always show as action? Or mark done if visited? Let's keep it simple.
+            completed: !!onboardingCompleted,
             href: `/store/${storeSlug}`,
             action: 'زيارة المتجر',
-            external: true
+            external: true,
+            onClick: handleVisitStore
         }
     ];
 
@@ -46,7 +75,7 @@ export function SetupChecklist({ storeSlug, hasProducts, hasOrders, isCustomized
     if (completedCount === tasks.length) return null; // Hide if all done
 
     return (
-        <div className="bg-white rounded-xl border border-slate-200 p-6 mb-8 shadow-sm">
+        <div className="bg-card rounded-xl border border-border p-6 mb-8 shadow-sm">
             <div className="flex items-center justify-between mb-4">
                 <div>
                     <h2 className="text-lg font-bold">تجهيز المتجر</h2>
@@ -58,7 +87,7 @@ export function SetupChecklist({ storeSlug, hasProducts, hasOrders, isCustomized
             </div>
 
             {/* Progress Bar */}
-            <div className="h-2 w-full bg-slate-100 rounded-full mb-6 overflow-hidden">
+            <div className="h-2 w-full bg-secondary/20 rounded-full mb-6 overflow-hidden">
                 <div
                     className="h-full bg-primary transition-all duration-500"
                     style={{ width: `${progress}%` }}
@@ -67,24 +96,28 @@ export function SetupChecklist({ storeSlug, hasProducts, hasOrders, isCustomized
 
             <div className="space-y-4">
                 {tasks.map((task) => (
-                    <div key={task.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
+                    <div key={task.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-secondary/10 transition-colors border border-transparent hover:border-border/50">
                         <div className="flex items-center gap-3">
                             {task.completed ? (
                                 <CheckCircle2 className="w-5 h-5 text-green-500" />
                             ) : (
-                                <Circle className="w-5 h-5 text-slate-300" />
+                                <Circle className="w-5 h-5 text-muted-foreground" />
                             )}
                             <div>
-                                <div className={`font-medium ${task.completed ? 'text-slate-500 line-through' : 'text-slate-900'}`}>
+                                <div className={`font-medium ${task.completed ? 'text-muted-foreground line-through' : 'text-foreground'}`}>
                                     {task.title}
                                 </div>
                                 <div className="text-xs text-muted-foreground">{task.description}</div>
                             </div>
                         </div>
                         {!task.completed && (
-                            <Link href={task.href} target={task.external ? "_blank" : undefined}>
-                                <Button size="sm" variant="outline" className="gap-2">
-                                    {task.action}
+                            <Link
+                                href={task.href}
+                                target={task.external ? "_blank" : undefined}
+                                onClick={task.onClick}
+                            >
+                                <Button size="sm" variant="outline" className="gap-2 bg-background hover:bg-secondary/20 border-border">
+                                    {loading && task.id === 'visit' ? <Loader2 className="w-3 h-3 animate-spin" /> : task.action}
                                     <ArrowRight className="w-3 h-3" />
                                 </Button>
                             </Link>

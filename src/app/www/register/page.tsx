@@ -10,9 +10,6 @@ import Link from "next/link";
 export default function RegisterPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [storeName, setStoreName] = useState("");
-    const [storeSlug, setStoreSlug] = useState("");
-    const [template, setTemplate] = useState("modern");
     const [loading, setLoading] = useState(false);
     const router = useRouter();
 
@@ -21,10 +18,10 @@ export default function RegisterPage() {
         setLoading(true);
 
         try {
-            const res = await fetch('/api/auth/register-merchant', {
+            const res = await fetch('/api/auth/signup', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password, storeName, storeSlug, template }),
+                body: JSON.stringify({ email, password }),
             });
 
             const data = await res.json();
@@ -34,7 +31,7 @@ export default function RegisterPage() {
                 return;
             }
 
-            // Redirect to landing page so user can see the "Dashboard" button
+            // Redirect to landing page so user can see the "Create Store" button
             window.location.href = '/';
 
         } catch (error: any) {
@@ -58,8 +55,8 @@ export default function RegisterPage() {
                     <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-blue-600 mb-4 shadow-lg shadow-purple-500/20">
                         <Store className="w-6 h-6 text-white" />
                     </div>
-                    <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">ابدأ تجارتك الآن</h1>
-                    <p className="text-slate-400">أنشئ متجرك الإلكتروني في ثوانٍ</p>
+                    <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">إنشاء حساب جديد</h1>
+                    <p className="text-slate-400">انضم إلينا وابدأ رحلتك في التجارة الإلكترونية</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -87,43 +84,6 @@ export default function RegisterPage() {
                                 className="bg-slate-900/50 border-white/10 focus:border-purple-500/50 transition-colors"
                             />
                         </div>
-
-                        <div className="pt-4 border-t border-white/10">
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-slate-300">اسم المتجر</label>
-                                <Input
-                                    required
-                                    value={storeName}
-                                    onChange={(e) => {
-                                        setStoreName(e.target.value);
-                                        // Auto-generate slug if not manually edited
-                                        if (!storeSlug) {
-                                            setStoreSlug(e.target.value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''));
-                                        }
-                                    }}
-                                    placeholder="مثال: متجر الأناقة"
-                                    className="bg-slate-900/50 border-white/10 focus:border-purple-500/50 transition-colors"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-slate-300">رابط المتجر (Slug)</label>
-                            <div className="flex items-center gap-2 text-slate-400 bg-slate-900/50 border border-white/10 rounded-md px-3 focus-within:border-purple-500/50 transition-colors">
-                                <span className="text-xs text-slate-500">.domain.com</span>
-                                <input
-                                    required
-                                    value={storeSlug}
-                                    onChange={(e) => setStoreSlug(e.target.value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''))}
-                                    className="flex-1 bg-transparent border-none focus:ring-0 h-10 text-white text-right placeholder:text-slate-600"
-                                    placeholder="my-store"
-                                    dir="ltr"
-                                />
-                            </div>
-                            <p className="text-xs text-slate-500 text-right">سيتم استخدام هذا الرابط للوصول لمتجرك</p>
-                        </div>
-
-                        {/* Template Selection Removed - Defaulting to Modern (Prestige) */}
                     </div>
 
                     <Button
@@ -131,7 +91,7 @@ export default function RegisterPage() {
                         className="w-full h-12 text-lg bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 transition-all shadow-lg shadow-purple-500/20"
                         disabled={loading}
                     >
-                        {loading ? <Loader2 className="animate-spin" /> : "إنشاء الحساب والمتجر"}
+                        {loading ? <Loader2 className="animate-spin" /> : "إنشاء الحساب"}
                     </Button>
 
                     <div className="text-center text-sm text-slate-400">
