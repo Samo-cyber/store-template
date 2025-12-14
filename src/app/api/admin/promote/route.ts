@@ -43,8 +43,7 @@ export async function POST(request: Request) {
             .upsert({
                 id: user.id,
                 email: user.email,
-                role: 'super_admin',
-                updated_at: new Date().toISOString()
+                role: 'super_admin'
             }, { onConflict: 'id' });
 
         if (updateError) {
