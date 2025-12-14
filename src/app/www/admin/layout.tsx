@@ -93,11 +93,12 @@ export default function SuperAdminLayout({
             if (res.ok) {
                 window.location.reload();
             } else {
-                alert("Failed to fix permissions");
+                const data = await res.json();
+                alert(`Failed to fix permissions: ${data.error || res.statusText}`);
             }
-        } catch (e) {
+        } catch (e: any) {
             console.error(e);
-            alert("Error fixing permissions");
+            alert(`Error fixing permissions: ${e.message}`);
         }
     };
 

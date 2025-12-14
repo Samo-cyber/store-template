@@ -4,21 +4,20 @@ import { cookies } from 'next/headers';
 
 export async function POST(request: Request) {
     try {
+        console.log("Promote API: Started");
         // 1. Verify the user is logged in
         const cookieStore = cookies();
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-        const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+        const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-        // We need a client that can read the session from cookies
-        // But for the update, we need the SERVICE ROLE key
-
-        // First, get the session user ID
-        // We can't easily use createServerClient here without the complex setup
-        // So we'll rely on the client sending the user ID or just trust the session cookie if we can parse it
-        // A safer way: Use the service role client to get the user from the access token
+        if (!serviceRoleKey) {
+            console.error("Promote API: Missing SUPABASE_SERVICE_ROLE_KEY");
+            return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
+        }
 
         const authHeader = request.headers.get('Authorization');
         if (!authHeader) {
+            console.error("Promote API: No authorization header");
             return NextResponse.json({ error: 'No authorization header' }, { status: 401 });
         }
 
@@ -26,14 +25,17 @@ export async function POST(request: Request) {
 
         const supabaseAdmin = createClient(
             supabaseUrl,
-            process.env.SUPABASE_SERVICE_ROLE_KEY!
+            serviceRoleKey
         );
 
         const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
 
         if (authError || !user) {
+            console.error("Promote API: Invalid token or user not found", authError);
             return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
         }
+
+        console.log("Promote API: User found", user.id, user.email);
 
         // 2. Promote the user (Upsert to ensure row exists)
         const { error: updateError } = await supabaseAdmin
@@ -46,12 +48,15 @@ export async function POST(request: Request) {
             }, { onConflict: 'id' });
 
         if (updateError) {
+            console.error("Promote API: DB Update Error", updateError);
             return NextResponse.json({ error: updateError.message }, { status: 500 });
         }
 
+        console.log("Promote API: Success");
         return NextResponse.json({ success: true });
 
     } catch (error: any) {
+        console.error("Promote API: Unexpected Error", error);
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
