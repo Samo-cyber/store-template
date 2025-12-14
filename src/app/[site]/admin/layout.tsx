@@ -53,6 +53,7 @@ export default function AdminLayout({
                 }
 
                 // Check if user owns THIS specific store
+                console.log(`AdminLayout: Checking ownership for store slug: ${params.site}`);
                 const { data: storeData } = await supabase
                     .from('stores')
                     .select('owner_id, onboarding_completed')
@@ -60,13 +61,13 @@ export default function AdminLayout({
                     .single();
 
                 if (!storeData) {
-                    console.log("AdminLayout: Store not found");
+                    console.log("AdminLayout: Store not found for slug:", params.site);
                     router.push("/"); // Or 404
                     return;
                 }
 
                 if (storeData.owner_id !== session.user.id) {
-                    console.log("AdminLayout: User does not own this store");
+                    console.log(`AdminLayout: User ${session.user.id} does not own store ${params.site} (owner: ${storeData.owner_id})`);
                     router.push("/"); // Access Denied
                     return;
                 }

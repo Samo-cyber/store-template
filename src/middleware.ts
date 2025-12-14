@@ -21,9 +21,10 @@ export default async function middleware(req: NextRequest) {
 
     // 1. Determine Hostname (Subdomain/Custom Domain)
     let currentHost = "demo";
-    if (process.env.NODE_ENV === 'development' && hostname.includes("localhost")) {
+    if (process.env.NODE_ENV === 'development' && (hostname.includes("localhost") || hostname.includes("127.0.0.1"))) {
         const parts = hostname.split('.');
-        if (parts.length > 1 && parts[0] !== 'localhost') {
+        if (parts.length > 1 && parts[0] !== 'localhost' && parts[0] !== '127') {
+            // e.g. store1.localhost
             currentHost = parts[0];
         } else {
             currentHost = "www";
