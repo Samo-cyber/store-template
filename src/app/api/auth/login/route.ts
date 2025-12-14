@@ -95,6 +95,18 @@ export async function POST(request: Request) {
             store = userStore;
         }
 
+        // Determine Redirect URL
+        let redirectUrl = '/';
+        if (isSuperAdmin) {
+            redirectUrl = '/admin';
+        } else if (store) {
+            // Use the store's custom domain or subdomain if possible, but for now relative path is safer
+            // The middleware will handle the rewriting if needed
+            redirectUrl = `/store/${store.slug}/admin`;
+        } else {
+            redirectUrl = '/create-store';
+        }
+
         // Create Session Token
         const token = await new SignJWT({
             userId: authenticatedUser.id,
@@ -110,7 +122,7 @@ export async function POST(request: Request) {
             success: true,
             user: authenticatedUser,
             store,
-            redirectUrl: isSuperAdmin ? '/admin' : undefined
+            redirectUrl
         });
 
         // Determine cookie domain
