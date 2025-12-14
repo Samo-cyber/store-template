@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createBrowserClient } from "@supabase/ssr";
-import { Loader2, Store, Users, DollarSign, ExternalLink, Home, Settings, Package, X, TrendingUp } from "lucide-react";
+import { Loader2, Store, Users, DollarSign, ExternalLink, Home, Settings, Package, X, TrendingUp, Activity, ShoppingBag, AlertCircle, CheckCircle, Ban, Play } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 import {
@@ -34,6 +34,8 @@ export default function SuperAdminDashboard() {
     const [productsLoading, setProductsLoading] = useState(false);
     const [revenueData, setRevenueData] = useState<any[]>([]);
     const [growthData, setGrowthData] = useState<any[]>([]);
+    const [activityFeed, setActivityFeed] = useState<any[]>([]);
+    const [recentOrders, setRecentOrders] = useState<any[]>([]);
 
     const [supabase] = useState(() => createBrowserClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -70,6 +72,14 @@ export default function SuperAdminDashboard() {
             const { data: growth } = await supabase.rpc('get_platform_growth');
             if (growth) setGrowthData(growth);
 
+            // 5. Load Activity Feed
+            const { data: activity } = await supabase.rpc('get_admin_activity_feed');
+            if (activity) setActivityFeed(activity);
+
+            // 6. Load Recent Orders
+            const { data: orders } = await supabase.rpc('get_global_recent_orders');
+            if (orders) setRecentOrders(orders);
+
         } catch (error) {
             console.error("Error loading dashboard:", error);
         } finally {
@@ -105,6 +115,29 @@ export default function SuperAdminDashboard() {
             console.error("Error updating settings:", error);
             // Revert on error
             loadDashboardData();
+        }
+    }
+
+    async function suspendStore(storeId: string) {
+        if (!confirm("هل أنت متأكد من إيقاف هذا المتجر؟")) return;
+        try {
+            const { error } = await supabase.rpc('suspend_store', { p_store_id: storeId });
+            if (error) throw error;
+            loadDashboardData(); // Reload to update status
+        } catch (error) {
+            console.error("Error suspending store:", error);
+            alert("حدث خطأ أثناء إيقاف المتجر");
+        }
+    }
+
+    async function activateStore(storeId: string) {
+        try {
+            const { error } = await supabase.rpc('activate_store', { p_store_id: storeId });
+            if (error) throw error;
+            loadDashboardData(); // Reload to update status
+        } catch (error) {
+            console.error("Error activating store:", error);
+            alert("حدث خطأ أثناء تفعيل المتجر");
         }
     }
 
@@ -263,6 +296,86 @@ export default function SuperAdminDashboard() {
                     </div>
                 </div>
 
+                {/* Activity & Orders Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Recent Orders */}
+                    <div className="lg:col-span-2 bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+                        <div className="p-6 border-b border-white/10 flex items-center justify-between">
+                            <div>
+                                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                                    <ShoppingBag className="w-5 h-5 text-blue-400" />
+                                    أحدث الطلبات
+                                </h3>
+                                <p className="text-sm text-slate-400">طلبات حية من جميع المتاجر</p>
+                            </div>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-right text-sm">
+                                <thead className="bg-white/5 text-slate-400">
+                                    <tr>
+                                        <th className="p-4">العميل</th>
+                                        <th className="p-4">المتجر</th>
+                                        <th className="p-4">القيمة</th>
+                                        <th className="p-4">الحالة</th>
+                                        <th className="p-4">منذ</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-white/5">
+                                    {recentOrders.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={5} className="p-8 text-center text-slate-500">لا توجد طلبات حديثة</td>
+                                        </tr>
+                                    ) : (
+                                        recentOrders.map((order) => (
+                                            <tr key={order.id} className="hover:bg-white/5 transition-colors">
+                                                <td className="p-4 font-medium">{order.customer_name}</td>
+                                                <td className="p-4 text-slate-400">{order.store_name}</td>
+                                                <td className="p-4 font-bold text-green-400">{order.total_amount} ج.م</td>
+                                                <td className="p-4">
+                                                    <span className={`px-2 py-1 rounded-full text-xs ${order.status === 'pending' ? 'bg-yellow-500/10 text-yellow-400' :
+                                                        order.status === 'completed' ? 'bg-green-500/10 text-green-400' :
+                                                            'bg-slate-500/10 text-slate-400'
+                                                        }`}>
+                                                        {order.status}
+                                                    </span>
+                                                </td>
+                                                <td className="p-4 text-slate-500 text-xs">
+                                                    {new Date(order.created_at).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    {/* Activity Feed */}
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+                        <div className="mb-6 flex items-center gap-2">
+                            <Activity className="w-5 h-5 text-purple-400" />
+                            <h3 className="text-lg font-bold text-white">سجل النشاط</h3>
+                        </div>
+                        <div className="space-y-6">
+                            {activityFeed.length === 0 ? (
+                                <div className="text-center text-slate-500 py-8">لا يوجد نشاط حديث</div>
+                            ) : (
+                                activityFeed.map((log) => (
+                                    <div key={log.id} className="relative pl-4 border-l border-white/10 pb-2 last:pb-0">
+                                        <div className={`absolute -left-[5px] top-0 w-2.5 h-2.5 rounded-full ${log.type === 'new_store' ? 'bg-purple-500' :
+                                            log.type === 'new_user' ? 'bg-blue-500' :
+                                                log.type === 'new_order' ? 'bg-green-500' :
+                                                    'bg-slate-500'
+                                            }`} />
+                                        <div className="text-sm text-slate-300 mb-1">{log.message}</div>
+                                        <div className="text-xs text-slate-500">{log.time_ago}</div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </div>
+                </div>
+
                 {/* Stores Table */}
                 <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
                     <div className="p-6 border-b border-white/10 flex items-center justify-between">
@@ -282,6 +395,7 @@ export default function SuperAdminDashboard() {
                                     <th className="p-4 font-medium">المالك</th>
                                     <th className="p-4 font-medium">المبيعات</th>
                                     <th className="p-4 font-medium">الطلبات</th>
+                                    <th className="p-4 font-medium">الحالة</th>
                                     <th className="p-4 font-medium">تاريخ الإنشاء</th>
                                     <th className="p-4 font-medium">إجراءات</th>
                                 </tr>
@@ -302,6 +416,15 @@ export default function SuperAdminDashboard() {
                                         <td className="p-4">
                                             <span className="px-2 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs">
                                                 {store.total_orders} طلب
+                                            </span>
+                                        </td>
+                                        <td className="p-4">
+                                            <span className={`px-2 py-1 rounded-full text-xs flex w-fit items-center gap-1 ${store.status === 'suspended' ? 'bg-red-500/10 text-red-400' :
+                                                    store.status === 'pending' ? 'bg-yellow-500/10 text-yellow-400' :
+                                                        'bg-green-500/10 text-green-400'
+                                                }`}>
+                                                {store.status === 'suspended' ? <Ban className="w-3 h-3" /> : <CheckCircle className="w-3 h-3" />}
+                                                {store.status === 'suspended' ? 'موقوف' : 'نشط'}
                                             </span>
                                         </td>
                                         <td className="p-4 text-slate-400">
@@ -379,6 +502,28 @@ export default function SuperAdminDashboard() {
                                                     </div>
                                                 </DialogContent>
                                             </Dialog>
+
+                                            {store.status === 'suspended' ? (
+                                                <Button
+                                                    size="icon"
+                                                    variant="ghost"
+                                                    className="h-8 w-8 text-green-400 hover:text-green-300 hover:bg-green-500/10"
+                                                    onClick={() => activateStore(store.store_id)}
+                                                    title="تفعيل المتجر"
+                                                >
+                                                    <Play className="w-4 h-4" />
+                                                </Button>
+                                            ) : (
+                                                <Button
+                                                    size="icon"
+                                                    variant="ghost"
+                                                    className="h-8 w-8 text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                                                    onClick={() => suspendStore(store.store_id)}
+                                                    title="إيقاف المتجر"
+                                                >
+                                                    <Ban className="w-4 h-4" />
+                                                </Button>
+                                            )}
                                         </td>
                                     </tr>
                                 ))}
