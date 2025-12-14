@@ -50,15 +50,26 @@ export async function POST(request: Request) {
             });
 
             if (!authError && authData.user) {
-                // Check if this user is a super admin (you might want to add a check here)
-                // For now, we assume anyone who can log in via Supabase Auth directly is a super admin
-                // OR we can check a specific email
-                authenticatedUser = {
-                    id: authData.user.id,
-                    email: authData.user.email!,
-                    role: 'super_admin' // Force role for Supabase Auth users
-                };
-                isSuperAdmin = true;
+                // Check DB role for this user
+                const { data: dbUser } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('id', authData.user.id)
+                    .single();
+
+                if (dbUser) {
+                    authenticatedUser = dbUser;
+                    if (dbUser.role === 'super_admin') {
+                        isSuperAdmin = true;
+                    }
+                } else {
+                    // Fallback if not in public.users (should not happen with trigger, but safe default)
+                    authenticatedUser = {
+                        id: authData.user.id,
+                        email: authData.user.email!,
+                        role: 'user' // Default to user, NOT super_admin
+                    };
+                }
             }
         }
 
