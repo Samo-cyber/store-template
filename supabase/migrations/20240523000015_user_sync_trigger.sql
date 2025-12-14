@@ -10,14 +10,15 @@ BEGIN
     new.id,
     new.email,
     new.raw_user_meta_data->>'full_name',
-    'super_admin' -- FORCE SUPER ADMIN FOR EVERYONE
+    new.raw_user_meta_data->>'full_name',
+    COALESCE(new.raw_user_meta_data->>'role', 'user') -- Default to 'user'
   );
   RETURN new;
 END;
 $$;
 
--- Update ALL existing users to be super_admin immediately
-UPDATE public.users SET role = 'super_admin';
+-- Remove the global update to prevent accidental promotion of all users
+-- UPDATE public.users SET role = 'super_admin';
 
 -- 2. Create the trigger
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;

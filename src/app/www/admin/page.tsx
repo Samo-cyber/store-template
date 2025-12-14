@@ -420,8 +420,8 @@ export default function SuperAdminDashboard() {
                                         </td>
                                         <td className="p-4">
                                             <span className={`px-2 py-1 rounded-full text-xs flex w-fit items-center gap-1 ${store.status === 'suspended' ? 'bg-red-500/10 text-red-400' :
-                                                    store.status === 'pending' ? 'bg-yellow-500/10 text-yellow-400' :
-                                                        'bg-green-500/10 text-green-400'
+                                                store.status === 'pending' ? 'bg-yellow-500/10 text-yellow-400' :
+                                                    'bg-green-500/10 text-green-400'
                                                 }`}>
                                                 {store.status === 'suspended' ? <Ban className="w-3 h-3" /> : <CheckCircle className="w-3 h-3" />}
                                                 {store.status === 'suspended' ? 'موقوف' : 'نشط'}
@@ -432,7 +432,7 @@ export default function SuperAdminDashboard() {
                                         </td>
                                         <td className="p-4 flex items-center gap-2 opacity-50 group-hover:opacity-100 transition-opacity">
                                             <a
-                                                href={`http://${store.store_slug}.localhost:3000`} // Adjust for production
+                                                href={`${process.env.NODE_ENV === 'production' ? 'https' : 'http'}://${store.store_slug}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'localhost:3000'}`}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                             >
