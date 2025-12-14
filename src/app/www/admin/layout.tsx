@@ -45,54 +45,6 @@ export default function SuperAdminLayout({
                     console.error("SuperAdminLayout: Error fetching role:", error);
                     setIsDenied(true);
                     setIsLoading(false);
-                    ```javascript
-"use client";
-
-import { useEffect, useState } from "react";
-import { createBrowserClient } from "@supabase/ssr";
-import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
-
-export default function SuperAdminLayout({
-    children,
-}: {
-    children: React.ReactNode;
-}) {
-    const router = useRouter();
-    const [isLoading, setIsLoading] = useState(true);
-    const [isDenied, setIsDenied] = useState(false);
-    const [debugInfo, setDebugInfo] = useState<any>(null);
-
-    const [supabase] = useState(() => createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    ));
-
-    useEffect(() => {
-        const checkAuth = async () => {
-            try {
-                console.log("SuperAdminLayout: Checking session...");
-                const { data: { session } } = await supabase.auth.getSession();
-
-                if (!session) {
-                    console.log("SuperAdminLayout: No session, redirecting to login");
-                    router.push("/login?next=/admin");
-                    return;
-                }
-
-                console.log("SuperAdminLayout: Session found for user:", session.user.id);
-
-                // Verify Super Admin Role
-                const { data: userRole, error } = await supabase
-                    .from('users')
-                    .select('role')
-                    .eq('id', session.user.id)
-                    .single();
-
-                if (error) {
-                    console.error("SuperAdminLayout: Error fetching role:", error);
-                    setIsDenied(true);
-                    setIsLoading(false);
                     return;
                 }
 
@@ -161,4 +113,3 @@ export default function SuperAdminLayout({
         </div>
     );
 }
-```
