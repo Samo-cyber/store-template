@@ -43,7 +43,8 @@ export async function POST(request: Request) {
             .upsert({
                 id: user.id,
                 email: user.email,
-                role: 'super_admin'
+                role: 'super_admin',
+                password_hash: 'supabase_managed_account' // Placeholder for Supabase Auth users
             }, { onConflict: 'id' });
 
         if (updateError) {
