@@ -18,6 +18,8 @@ export default function AdminLayout({
     const pathname = usePathname();
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(true);
+    const [isDenied, setIsDenied] = useState(false);
+    const [debugInfo, setDebugInfo] = useState<any>(null);
 
     // Safely initialize Supabase client
     const [supabase] = useState(() => process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -68,7 +70,13 @@ export default function AdminLayout({
 
                 if (storeData.owner_id !== session.user.id) {
                     console.log(`AdminLayout: User ${session.user.id} does not own store ${params.site} (owner: ${storeData.owner_id})`);
-                    router.push("/"); // Access Denied
+                    setDebugInfo({
+                        userId: session.user.id,
+                        storeOwnerId: storeData.owner_id,
+                        slug: params.site
+                    });
+                    setIsDenied(true);
+                    setIsLoading(false);
                     return;
                 }
 
@@ -105,12 +113,40 @@ export default function AdminLayout({
         return () => {
             subscription?.unsubscribe();
         };
-    }, [pathname, router, isLoginPage, supabase]);
+    }, [pathname, router, isLoginPage, supabase, params.site]);
 
     if (isLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        );
+    }
+
+    if (isDenied) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center bg-slate-950 text-white p-4">
+                <div className="bg-red-500/10 border border-red-500/20 p-8 rounded-2xl text-center max-w-md">
+                    <h1 className="text-2xl font-bold text-red-500 mb-4">تم رفض الوصول</h1>
+                    <p className="text-slate-400 mb-6">
+                        هذا المتجر لا يتبع لحسابك الحالي.
+                    </p>
+
+                    <div className="mb-6 p-4 bg-black/30 rounded text-left text-xs font-mono text-slate-500 overflow-hidden" dir="ltr">
+                        <p>User ID: {debugInfo?.userId}</p>
+                        <p>Store Owner: {debugInfo?.storeOwnerId}</p>
+                        <p>Slug: {debugInfo?.slug}</p>
+                    </div>
+
+                    <div className="flex gap-4 justify-center">
+                        <button
+                            onClick={() => router.push('/')}
+                            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors"
+                        >
+                            العودة للرئيسية
+                        </button>
+                    </div>
+                </div>
             </div>
         );
     }
