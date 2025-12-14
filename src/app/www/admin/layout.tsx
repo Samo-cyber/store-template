@@ -34,29 +34,22 @@ export default function SuperAdminLayout({
 
                 console.log("SuperAdminLayout: Session found for user:", session.user.id);
 
-                // Verify Super Admin Role
-                const { data: userRole, error } = await supabase
-                    .from('users')
-                    .select('role')
+                // Verify Super Admin Role (Check public.admins)
+                const { data: adminUser, error } = await supabase
+                    .from('admins')
+                    .select('id')
                     .eq('id', session.user.id)
                     .single();
 
-                if (error) {
-                    console.error("SuperAdminLayout: Error fetching role:", error);
+                if (error || !adminUser) {
+                    console.error("SuperAdminLayout: Not found in admins table");
                     setIsDenied(true);
                     setIsLoading(false);
                     return;
                 }
 
-                console.log("SuperAdminLayout: User role:", userRole?.role);
-                setDebugInfo({ userId: session.user.id, role: userRole?.role });
-
-                if (userRole?.role !== 'super_admin') {
-                    console.log("SuperAdminLayout: Not super_admin, access denied");
-                    setIsDenied(true);
-                    setIsLoading(false);
-                    return;
-                }
+                console.log("SuperAdminLayout: User is admin");
+                setDebugInfo({ userId: session.user.id, role: 'super_admin' });
 
                 setIsLoading(false);
             } catch (e) {

@@ -50,24 +50,28 @@ export async function POST(request: Request) {
             });
 
             if (!authError && authData.user) {
-                // Check DB role for this user
-                const { data: dbUser } = await supabase
-                    .from('users')
-                    .select('*')
+                // Check if user exists in public.admins
+                const { data: adminUser } = await supabase
+                    .from('admins')
+                    .select('id')
                     .eq('id', authData.user.id)
                     .single();
 
-                if (dbUser) {
-                    authenticatedUser = dbUser;
-                    if (dbUser.role === 'super_admin') {
-                        isSuperAdmin = true;
-                    }
-                } else {
-                    // Fallback if not in public.users (should not happen with trigger, but safe default)
+                if (adminUser) {
+                    // User IS a Super Admin
                     authenticatedUser = {
                         id: authData.user.id,
                         email: authData.user.email!,
-                        role: 'user' // Default to user, NOT super_admin
+                        role: 'super_admin'
+                    };
+                    isSuperAdmin = true;
+                } else {
+                    // User is NOT a Super Admin (even if in auth.users)
+                    // Fallback to regular user role
+                    authenticatedUser = {
+                        id: authData.user.id,
+                        email: authData.user.email!,
+                        role: 'user'
                     };
                 }
             }
