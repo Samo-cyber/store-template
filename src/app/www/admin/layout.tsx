@@ -43,6 +43,7 @@ export default function SuperAdminLayout({
 
                 if (error || !adminUser) {
                     console.error("SuperAdminLayout: Not found in admins table");
+                    setDebugInfo({ userId: session.user.id, role: 'null' });
                     setIsDenied(true);
                     setIsLoading(false);
                     return;
