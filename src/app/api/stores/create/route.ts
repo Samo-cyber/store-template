@@ -1,14 +1,6 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import { SignJWT } from 'jose';
-
-const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
-const JWT_SECRET = new TextEncoder().encode(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
 
 export async function POST(request: Request) {
     try {
@@ -22,27 +14,31 @@ export async function POST(request: Request) {
         }
 
         const cookieStore = cookies();
-        const userSession = cookieStore.get('user_session')?.value;
 
-        if (!userSession) {
+        // Initialize Supabase Client (Server-Side)
+        const supabase = createServerClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            {
+                cookies: {
+                    get(name: string) {
+                        return cookieStore.get(name)?.value;
+                    },
+                },
+            }
+        );
+
+        // Get Authenticated User
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+        if (authError || !user) {
             return NextResponse.json(
                 { error: 'يجب تسجيل الدخول أولاً' },
                 { status: 401 }
             );
         }
 
-        // Verify session
-        let userId;
-        try {
-            const { jwtVerify } = await import('jose');
-            const { payload } = await jwtVerify(userSession, JWT_SECRET);
-            userId = payload.userId;
-        } catch (e) {
-            return NextResponse.json(
-                { error: 'جلسة غير صالحة' },
-                { status: 401 }
-            );
-        }
+        const userId = user.id;
 
         // Check if slug exists
         const { data: existingStore } = await supabase

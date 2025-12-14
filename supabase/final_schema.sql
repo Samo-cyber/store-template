@@ -32,42 +32,48 @@ CREATE TABLE IF NOT EXISTS public.stores (
     id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
     name text NOT NULL,
     slug text NOT NULL UNIQUE,
-    owner_id uuid REFERENCES public.users(id) ON DELETE CASCADE, -- References Custom Auth Users
-    description text,
-    settings jsonb DEFAULT '{}'::jsonb,
-    template text DEFAULT 'modern',
-    status text DEFAULT 'active' CHECK (status IN ('active', 'suspended', 'pending')),
-    onboarding_completed BOOLEAN DEFAULT FALSE,
+    owner_id uuid REFERENCES public.users(id) ON DELETE CASCADE,
     created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
+
+-- Ensure all columns exist (Idempotent updates)
+ALTER TABLE public.stores ADD COLUMN IF NOT EXISTS description text;
+ALTER TABLE public.stores ADD COLUMN IF NOT EXISTS settings jsonb DEFAULT '{}'::jsonb;
+ALTER TABLE public.stores ADD COLUMN IF NOT EXISTS template text DEFAULT 'modern';
+ALTER TABLE public.stores ADD COLUMN IF NOT EXISTS status text DEFAULT 'active' CHECK (status IN ('active', 'suspended', 'pending'));
+ALTER TABLE public.stores ADD COLUMN IF NOT EXISTS onboarding_completed BOOLEAN DEFAULT FALSE;
 
 -- Products
 CREATE TABLE IF NOT EXISTS public.products (
     id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
     store_id uuid REFERENCES public.stores(id) ON DELETE CASCADE,
     title text NOT NULL,
-    description text,
     price numeric NOT NULL,
-    stock integer DEFAULT 0,
-    category text,
-    image_url text,
     created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
+
+-- Ensure all columns exist
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS description text;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS stock integer DEFAULT 0;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS category text;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS image_url text;
 
 -- Orders
 CREATE TABLE IF NOT EXISTS public.orders (
     id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
     store_id uuid REFERENCES public.stores(id) ON DELETE CASCADE,
     customer_name text NOT NULL,
-    customer_email text,
-    customer_phone text,
-    address jsonb,
     total_amount numeric NOT NULL,
-    shipping_cost numeric DEFAULT 0,
-    status text DEFAULT 'pending',
-    payment_status text DEFAULT 'pending',
     created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
+
+-- Ensure all columns exist
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS customer_email text;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS customer_phone text;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS address jsonb;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS shipping_cost numeric DEFAULT 0;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS status text DEFAULT 'pending';
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS payment_status text DEFAULT 'pending';
 
 -- Order Items
 CREATE TABLE IF NOT EXISTS public.order_items (
