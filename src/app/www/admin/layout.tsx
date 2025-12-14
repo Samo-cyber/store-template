@@ -45,6 +45,54 @@ export default function SuperAdminLayout({
                     console.error("SuperAdminLayout: Error fetching role:", error);
                     setIsDenied(true);
                     setIsLoading(false);
+                    ```javascript
+"use client";
+
+import { useEffect, useState } from "react";
+import { createBrowserClient } from "@supabase/ssr";
+import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
+
+export default function SuperAdminLayout({
+    children,
+}: {
+    children: React.ReactNode;
+}) {
+    const router = useRouter();
+    const [isLoading, setIsLoading] = useState(true);
+    const [isDenied, setIsDenied] = useState(false);
+    const [debugInfo, setDebugInfo] = useState<any>(null);
+
+    const [supabase] = useState(() => createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    ));
+
+    useEffect(() => {
+        const checkAuth = async () => {
+            try {
+                console.log("SuperAdminLayout: Checking session...");
+                const { data: { session } } = await supabase.auth.getSession();
+
+                if (!session) {
+                    console.log("SuperAdminLayout: No session, redirecting to login");
+                    router.push("/login?next=/admin");
+                    return;
+                }
+
+                console.log("SuperAdminLayout: Session found for user:", session.user.id);
+
+                // Verify Super Admin Role
+                const { data: userRole, error } = await supabase
+                    .from('users')
+                    .select('role')
+                    .eq('id', session.user.id)
+                    .single();
+
+                if (error) {
+                    console.error("SuperAdminLayout: Error fetching role:", error);
+                    setIsDenied(true);
+                    setIsLoading(false);
                     return;
                 }
 
@@ -78,30 +126,6 @@ export default function SuperAdminLayout({
         );
     }
 
-    const handleFixPermissions = async () => {
-        try {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (!session) return;
-
-            const res = await fetch('/api/admin/promote', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${session.access_token}`
-                }
-            });
-
-            if (res.ok) {
-                window.location.reload();
-            } else {
-                const data = await res.json();
-                alert(`Failed to fix permissions: ${data.error || res.statusText}`);
-            }
-        } catch (e: any) {
-            console.error(e);
-            alert(`Error fixing permissions: ${e.message}`);
-        }
-    };
-
     if (isDenied) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center bg-slate-950 text-white p-4">
@@ -125,12 +149,6 @@ export default function SuperAdminLayout({
                         >
                             العودة للرئيسية
                         </button>
-                        <button
-                            onClick={handleFixPermissions}
-                            className="px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-lg transition-colors"
-                        >
-                            إصلاح الصلاحيات (اضغط هنا)
-                        </button>
                     </div>
                 </div>
             </div>
@@ -143,3 +161,4 @@ export default function SuperAdminLayout({
         </div>
     );
 }
+```
