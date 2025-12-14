@@ -45,23 +45,9 @@ export default function LoginPage() {
                 return;
             }
 
-            if (data.store) {
-                // Redirect to store admin
-                const protocol = window.location.protocol;
-                let rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || window.location.host.replace('www.', '');
-                if (rootDomain) {
-                    rootDomain = rootDomain.replace('https://', '').replace('http://', '');
-                }
-
-                if (rootDomain?.includes('vercel.app')) {
-                    window.location.href = `${protocol}//${rootDomain}/store/${data.store.slug}/admin`;
-                } else {
-                    window.location.href = `${protocol}//${data.store.slug}.${rootDomain}/admin`;
-                }
-            } else {
-                // Redirect to create store if no store found
-                router.push('/register');
-            }
+            // Redirect to landing page by default so user can see the "Dashboard" button
+            // unless it's a super admin who might want to go to /admin directly (handled by data.redirectUrl)
+            window.location.href = '/';
 
         } catch (err: any) {
             setError(err.message || "حدث خطأ أثناء تسجيل الدخول");

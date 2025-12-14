@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import { ExternalLink, Store, Shield, Zap, BarChart3, CheckCircle2 } from "lucide-react";
+import { ExternalLink, Store, Shield, Zap, BarChart3, CheckCircle2, LayoutDashboard } from "lucide-react";
 import LandingNavbar from "@/components/LandingNavbar";
 
 export default async function LandingPage() {
@@ -60,7 +60,7 @@ export default async function LandingPage() {
         .limit(6);
 
     return (
-        <main className="min-h-screen bg-background text-foreground selection:bg-primary/30">
+        <main className="min-h-screen bg-slate-950 text-foreground selection:bg-primary/30">
             <LandingNavbar user={user} storeSlug={userStore?.slug} />
 
             {/* Hero Section */}
@@ -87,16 +87,34 @@ export default async function LandingPage() {
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                        <Link href="/register">
-                            <Button size="lg" className="h-14 px-8 text-lg rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-xl shadow-primary/20 hover:scale-105">
-                                ابدأ تجربتك المجانية
-                            </Button>
-                        </Link>
-                        <Link href="#features">
-                            <Button variant="outline" size="lg" className="h-14 px-8 text-lg rounded-full border-white/10 hover:bg-white/5 hover:text-white transition-all">
-                                اكتشف المميزات
-                            </Button>
-                        </Link>
+                        {!user ? (
+                            <>
+                                <Link href="/login">
+                                    <Button size="lg" className="h-14 px-8 text-lg rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-xl shadow-primary/20 hover:scale-105">
+                                        تسجيل الدخول
+                                    </Button>
+                                </Link>
+                                <Link href="/register">
+                                    <Button variant="outline" size="lg" className="h-14 px-8 text-lg rounded-full border-white/10 hover:bg-white/5 hover:text-white transition-all">
+                                        إنشاء حساب جديد
+                                    </Button>
+                                </Link>
+                            </>
+                        ) : userStore ? (
+                            <Link href={user.role === 'super_admin' ? '/admin' : `/store/${userStore.slug}/admin`}>
+                                <Button size="lg" className="h-14 px-8 text-lg rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-xl shadow-primary/20 hover:scale-105">
+                                    <LayoutDashboard className="w-5 h-5 ml-2" />
+                                    لوحة التحكم
+                                </Button>
+                            </Link>
+                        ) : (
+                            <Link href="/register">
+                                <Button size="lg" className="h-14 px-8 text-lg rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-xl shadow-primary/20 hover:scale-105">
+                                    <Store className="w-5 h-5 ml-2" />
+                                    أنشئ متجرك الآن
+                                </Button>
+                            </Link>
+                        )}
                     </div>
                 </div>
             </section>

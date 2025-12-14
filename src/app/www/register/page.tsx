@@ -34,20 +34,8 @@ export default function RegisterPage() {
                 return;
             }
 
-            // Redirect to the new store's admin dashboard
-            const protocol = window.location.protocol;
-            let rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || window.location.host.replace('www.', '');
-            if (rootDomain) {
-                rootDomain = rootDomain.replace('https://', '').replace('http://', '');
-            }
-
-            // In production, we redirect to the subdomain
-            if (rootDomain?.includes('vercel.app')) {
-                // Fallback for Vercel free domains: use path-based routing
-                window.location.href = `${protocol}//${rootDomain}/store/${storeSlug}/admin`;
-            } else {
-                window.location.href = `${protocol}//${storeSlug}.${rootDomain}/admin`;
-            }
+            // Redirect to landing page so user can see the "Dashboard" button
+            window.location.href = '/';
 
         } catch (error: any) {
             console.error("Error registering:", error);
