@@ -12,7 +12,7 @@ TRUNCATE TABLE public.admins;
 INSERT INTO public.admins (id, email)
 SELECT id, email 
 FROM auth.users 
-WHERE email = 'YOUR_EMAIL@EXAMPLE.com'; -- <--- CHANGE THIS EMAIL
+WHERE email = 'Eslamhamdy58@gmail.com'; -- <--- CHANGE THIS EMAIL
 
 -- 3. VERIFY
 -- Check who is left in the admins table

@@ -517,7 +517,5 @@ VALUES (1, true, false, 'Prestige')
 ON CONFLICT (id) DO NOTHING;
 
 -- 8. MIGRATION HELPERS (One-time run)
--- Ensure existing auth users are in admins table
-INSERT INTO public.admins (id, email)
-SELECT id, email FROM auth.users
-ON CONFLICT (id) DO NOTHING;
+-- 8. MIGRATION HELPERS (One-time run)
+-- (Removed auto-promotion to prevent security issues)

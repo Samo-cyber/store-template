@@ -36,9 +36,8 @@ export async function POST(request: Request) {
             const isValid = await bcrypt.compare(password, user.password_hash);
             if (isValid) {
                 authenticatedUser = user;
-                if (user.role === 'super_admin') {
-                    isSuperAdmin = true;
-                }
+                // Note: We do NOT check for super_admin role here. 
+                // Super Admins must be authenticated via Supabase Auth and exist in public.admins.
             }
         }
 
